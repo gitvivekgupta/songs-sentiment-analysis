@@ -1,0 +1,107 @@
+---
+title: 'MATH 381: Project 2'
+author: "Eunji Lee | Yuan Qu | Arnav Dubey"
+date: "November 25, 2017"
+output:
+  html_document:
+    df_print: paged
+  html_notebook:
+    theme: readable
+    df_print: paged
+  pdf_document: default
+---
+
+
+```{r warning=FALSE}
+library(markovchain)
+library(SentimentAnalysis)
+
+dat = readLines("shape_of_you.txt") # read data from txt file.
+
+process_line <- function(line){ 
+   line <- trimws(line) # removes leading and trailing whitespaces.
+   line <- tolower(line) # makes all words lower case for standardization. 
+}
+
+v_process_line <- Vectorize(process_line) # vectorizes the funciton.
+
+sentences <- v_process_line(dat) # applices the funciton to the list.
+
+sentences <- sentences[sentences != ""] # removes empty strings.
+
+# prints the head the different between pairs of initial and final states can be noticed.
+head(sentences) 
+```
+
+
+```{r warning=FALSE, message=FALSE}
+# Analyze sentiment for each sentence of the song.
+sentiment <- analyzeSentiment(sentences)
+
+# extract dictionary-based sentiment according to the QDAP dictionary.
+sentiments <- sentiment$SentimentQDAP
+
+# converts continuous variable (sentiment scores) to discrete variable.
+make_discrete <- function(x) if(x < 0) x <- -1 else if(x > 0) x <- 1 else x <- 0
+
+# vectorizes the funciton
+v_make_discrete <- Vectorize(make_discrete)
+
+# coverts sentiments to discrete type
+discrete_sentiments <- v_make_discrete(sentiments)
+
+discrete_sentiments
+```
+
+
+```{r}
+# uses markovchain package in R to calculate the matrix probabilites
+mcFit <- markovchainFit(data = discrete_sentiments, byrow = FALSE)
+mcFit
+```
+
+
+```{r}
+# derive the estimated probabilites fromt the fitted model.
+mcSentiment <- mcFit$estimate 
+```
+
+```{r}
+# gives names to the transition states.
+names(mcSentiment) <- c("negative", "neutral", "positive")
+
+# gives a name to the mocel.
+name(mcSentiment) <- "Sentiment"
+```
+
+```{r}
+# derives the probablited of negative word after a positive word.
+transitionProbability(mcSentiment, "positive", "negative")
+```
+
+```{r}
+library(GGally)
+# png(filename="graph.png")
+plt <- plot(mcSentiment)
+plt 
+```
+
+
+```{r}
+df_urls <- read.csv(file="./songs_url_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+df_urls
+```
+
+```{r}
+df_songs <- read.csv(file="./songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+df_songs
+```
+
+
+
+
+## References:
+
+https://cran.r-project.org/web/packages/markovchain/vignettes/an_introduction_to_markovchain_package.pdf
+
+https://cran.r-project.org/web/packages/SentimentAnalysis/SentimentAnalysis.pdf 
