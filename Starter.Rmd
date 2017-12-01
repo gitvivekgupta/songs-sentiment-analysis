@@ -16,7 +16,7 @@ output:
 library(markovchain)
 library(SentimentAnalysis)
 
-dat = readLines("shape_of_you.txt") # read data from txt file.
+dat = readLines("./data/shape_of_you.txt") # read data from txt file.
 
 process_line <- function(line){ 
    line <- trimws(line) # removes leading and trailing whitespaces.
@@ -88,12 +88,12 @@ plt
 
 
 ```{r}
-df_urls <- read.csv(file="./songs_url_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+df_urls <- read.csv(file="./data/songs_url_list_Ed_Sheeran.csv", header=TRUE, sep=",")
 df_urls
 ```
 
 ```{r}
-df_songs <- read.csv(file="./songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+df_songs <- read.csv(file="./data/songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
 df_songs
 ```
 

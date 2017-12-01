@@ -1,5 +1,5 @@
 ---
-title: "string_clean"
+title: "Project 2: Sentiment Analysis of Songs"
 author: "Arnav Dubey"
 date: "November 28, 2017"
 output: html_document
@@ -10,9 +10,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r warning=FALSE}
 library(stringr)
+library(markovchain)
+library(SentimentAnalysis)
+library(GGally)
+```
 
+
+```{r}
 Clean_String <- function(string){
     # Lowercase
     temp <- tolower(string)
@@ -74,14 +80,14 @@ Clean_Text_Block <- function(text){
 
 
 ```{r}
-con <- file("shape_of_you.txt", "r", blocking = FALSE)
+con <- file("./data/shape_of_you.txt", "r", blocking = FALSE)
 text <- readLines(con)
 close(con) 
 ```
 
 
 ```{r}
-df_ed_sheeran <- read.csv(file="songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+df_ed_sheeran <- read.csv(file="./data/songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
 head(df_ed_sheeran)
 ```
 
@@ -100,14 +106,8 @@ for (idx in 1:length(docs)){
 list_clean_speech[[3]]
 ```
 
-```{r warning=FALSE}
-library(markovchain)
-library(SentimentAnalysis)
-```
-
 
 ```{r}
-
 # analyzeSentiment(list_clean_speech[[82]]$text)$SentimentQDAP # check which songs don't work with the package.
 
 # remove songs that don't work with the SentimentAnalysis package.
@@ -126,7 +126,7 @@ list_sentiment[[3]]$SentimentQDAP
 
 
 ```{r}
-capture.output(list_sentiment, file = "list_sentiment.txt")
+capture.output(list_sentiment, file = "./output/list_sentiment.txt")
 ```
 
 
@@ -144,7 +144,7 @@ make_discrete <- function(x) {
    
    y = abs(x)^{1/3} # scaling using power
    
-   if(y > 0.5){     # because 0.125^{1/3} = 0.5
+   if(y > 0.5){     # because 0.125^{1/3} = 0.5, we want to capture more non-neutral sentiment.
       significance = 1
    } else{
       significance = 0
@@ -171,7 +171,7 @@ list_dis_sentiments[[3]]
 ```
 
 ```{r}
-capture.output(list_dis_sentiments, file = "list_discrete_sentiments.txt")
+capture.output(list_dis_sentiments, file = "./output/list_discrete_sentiments.txt")
 ```
 
 ```{r}
@@ -186,7 +186,7 @@ list_markov_fits[[69]] # corresponds to the song "Shape of You".
 ```
 
 ```{r}
-capture.output(list_markov_fits, file = "list_markov_fits.txt")
+capture.output(list_markov_fits, file = "./output/list_markov_fits.txt")
 ```
 
 ```{r}
@@ -206,7 +206,6 @@ transitionProbability(mcSentiment, "positive", "negative")
 ```
 
 ```{r}
-library(GGally)
 # png(filename="graph.png")
 plt <- plot(mcSentiment)
 plt 
