@@ -179,12 +179,36 @@ capture.output(list_dis_sentiments, file = "list_discrete_sentiments.txt")
 list_markov_fits <- list()
 
 for(i in 1:length(list_dis_sentiments)){
-   list_markov_fits[[i]] <- markovchainFit(data = list_dis_sentiments[[i]])
+   list_markov_fits[[i]] <- markovchainFit(data = list_dis_sentiments[[i]], byrow = TRUE)
 }
 
-list_markov_fits[[2]]
+list_markov_fits[[69]] # corresponds to the song "Shape of You".
 ```
 
 ```{r}
 capture.output(list_markov_fits, file = "list_markov_fits.txt")
 ```
+
+```{r}
+# derive the estimated probabilites fromt the fitted model.
+mcSentiment <- list_markov_fits[[1]]$estimate 
+
+# gives names to the transition states.
+names(mcSentiment) <- c("negative", "neutral", "positive")
+
+# gives a name to the mocel.
+name(mcSentiment) <- "Sentiment"
+```
+
+```{r}
+# derives the probablited of negative word after a positive word.
+transitionProbability(mcSentiment, "positive", "negative")
+```
+
+```{r}
+library(GGally)
+# png(filename="graph.png")
+plt <- plot(mcSentiment)
+plt 
+```
+
