@@ -1,0 +1,190 @@
+---
+title: "string_clean"
+author: "Arnav Dubey"
+date: "November 28, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(stringr)
+
+Clean_String <- function(string){
+    # Lowercase
+    temp <- tolower(string)
+    #' Remove everything that is not a number or letter (may want to keep more 
+    #' stuff in your actual analyses). 
+    temp <- stringr::str_split(temp, "\n")[[1]]
+    temp <- stringr::str_replace_all(temp,"[^a-zA-Z\\s]", " ")
+    # Shrink down to just one white space
+    temp <- stringr::str_replace_all(temp,"[\\s]+", " ")
+    temp <- trimws(temp)
+    # Split it
+    # 
+    # Get rid of trailing "" if necessary
+    indexes <- which(temp == "")
+    if(length(indexes) > 0){
+      temp <- temp[-indexes]
+    } 
+    return(temp)
+}
+```
+
+
+```{r}
+#' function to clean text
+Clean_Text_Block <- function(text){
+    if(length(text) <= 1){
+        # Check to see if there is any text at all with another conditional
+        if(length(text) == 0){
+            cat("There was no text in this document! \n")
+            to_return <- list(num_tokens = 0, unique_tokens = 0, text = "")
+        }else{
+            # If there is , and only only one line of text then tokenize it
+            clean_text <- Clean_String(text)
+            num_tok <- length(clean_text)
+            num_uniq <- length(unique(clean_text))
+            to_return <- list(num_tokens = num_tok, unique_tokens = num_uniq, text = clean_text)
+        }
+    }else{
+        # Get rid of blank lines
+        indexes <- which(text == "")
+        if(length(indexes) > 0){
+            text <- text[-indexes]
+        }  
+        # Loop through the lines in the text and use the append() function to 
+        clean_text <- Clean_String(text[1])
+        for(i in 2:length(text)){
+            # add them to a vector 
+            clean_text <- append(clean_text,Clean_String(text[i]))
+        }
+        # Calculate the number of tokens and unique tokens and return them in a 
+        # named list object.
+        num_tok <- length(clean_text)
+        num_uniq <- length(unique(clean_text))
+        to_return <- list(num_tokens = num_tok, unique_tokens = num_uniq, text = clean_text)
+    }
+    return(to_return)
+}
+```
+
+
+```{r}
+con <- file("shape_of_you.txt", "r", blocking = FALSE)
+text <- readLines(con)
+close(con) 
+```
+
+
+```{r}
+df_ed_sheeran <- read.csv(file="songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+head(df_ed_sheeran)
+```
+
+```{r}
+docs <- c(levels(df_ed_sheeran$Lyrics))
+docs[1]
+```
+
+
+```{r}
+list_clean_speech <- list()
+for (idx in 1:length(docs)){
+   clean_speech <- Clean_Text_Block(docs[idx])
+   list_clean_speech[idx] <- list(clean_speech)
+}
+list_clean_speech[[3]]
+```
+
+```{r warning=FALSE}
+library(markovchain)
+library(SentimentAnalysis)
+```
+
+
+```{r}
+
+# analyzeSentiment(list_clean_speech[[82]]$text)$SentimentQDAP # check which songs don't work with the package.
+
+# remove songs that don't work with the SentimentAnalysis package.
+list_input <- list_clean_speech[-c(15, 17, 24, 30, 38, 46, 49, 82)]
+
+# Analyze sentiment for each sentence of the song.
+list_sentiment <- list()
+for (idx in 1:length(list_input)){
+   sentiment <- analyzeSentiment(list_input[[idx]]$text)
+   list_sentiment[idx] <- na.omit(list(sentiment))
+   print(idx)
+}
+# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
+list_sentiment[[3]]$SentimentQDAP
+```
+
+
+```{r}
+capture.output(list_sentiment, file = "list_sentiment.txt")
+```
+
+
+```{r}
+# converts continuous variable (sentiment scores) to discrete variable.
+make_discrete <- function(x) {
+   
+   if(x < 0) {
+      sign <- -1 
+   } else if(x > 0) {
+      sign <- 1 
+   } else {
+      sign <- 0
+   }
+   
+   y = abs(x)^{1/3} # scaling using power
+   
+   if(y > 0.5){     # because 0.125^{1/3} = 0.5
+      significance = 1
+   } else{
+      significance = 0
+   }
+   
+   if(significance == 0){
+      x <- 0
+   } else {
+      x <- sign
+   }
+}
+
+# vectorizes the funciton
+v_make_discrete <- Vectorize(make_discrete)
+# coverts sentiments to discrete type
+# discrete_sentiments <- v_make_discrete(sentiments)
+
+list_dis_sentiments <- list()
+for(i in 1:length(list_sentiment)){
+   list_dis_sentiments[[i]] <- v_make_discrete(na.omit(list_sentiment[[i]]$SentimentQDAP))
+}
+
+list_dis_sentiments[[3]]
+```
+
+```{r}
+capture.output(list_dis_sentiments, file = "list_discrete_sentiments.txt")
+```
+
+```{r}
+# uses markovchain package in R to calculate the matrix probabilites
+list_markov_fits <- list()
+
+for(i in 1:length(list_dis_sentiments)){
+   list_markov_fits[[i]] <- markovchainFit(data = list_dis_sentiments[[i]])
+}
+
+list_markov_fits[[2]]
+```
+
+```{r}
+capture.output(list_markov_fits, file = "list_markov_fits.txt")
+```

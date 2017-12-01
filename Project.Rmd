@@ -30,7 +30,7 @@ sentences <- v_process_line(dat) # applices the funciton to the list.
 sentences <- sentences[sentences != ""] # removes empty strings.
 
 # prints the head the different between pairs of initial and final states can be noticed.
-head(sentences) 
+head(sentences)
 ```
 
 
@@ -97,6 +97,22 @@ df_songs <- read.csv(file="./songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep
 df_songs
 ```
 
+```{r}
+# calc_sentiments <- function(sentence){
+#    # Analyze sentiment for each sentence of the song.
+#    sentiment <- analyzeSentiment(sentences)
+#    # extract dictionary-based sentiment according to the QDAP dictionary.
+#    sentiments <- sentiment$SentimentQDAP 
+#    return(list(sentiments))
+# }
+# 
+# # vectorizes the funciton
+# vec_calc_sentiments <- Vectorize(calc_sentiments)
+# 
+# new_list <- list(vec_calc_sentiments(list_clean_speech[-c(15, 17, 24, 30, 38, 46, 49, 82)]$text))
+# new_list
+# # head(list_clean_speech[-c(15, 17, 24, 30, 38, 46, 49, 82)])
+```
 
 
 
@@ -105,3 +121,5 @@ df_songs
 https://cran.r-project.org/web/packages/markovchain/vignettes/an_introduction_to_markovchain_package.pdf
 
 https://cran.r-project.org/web/packages/SentimentAnalysis/SentimentAnalysis.pdf 
+
+https://cran.r-project.org/web/packages/quanteda/vignettes/quickstart.html
