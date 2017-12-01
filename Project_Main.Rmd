@@ -1,8 +1,14 @@
 ---
-title: "Project 2: Sentiment Analysis of Songs"
-author: "Arnav Dubey"
-date: "November 28, 2017"
-output: html_document
+title: "Math 381 Project 2: Sentiment Analysis of Songs"
+author: "Eunji Lee | Yuan Qu | Arnav Dubey"
+date: "November 25, 2017"
+output:
+  html_document:
+    df_print: paged
+  html_notebook:
+    theme: readable
+    df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -78,13 +84,7 @@ Clean_Text_Block <- function(text){
 }
 ```
 
-
-```{r}
-con <- file("./data/shape_of_you.txt", "r", blocking = FALSE)
-text <- readLines(con)
-close(con) 
-```
-
+## Ed Sheeran
 
 ```{r}
 df_ed_sheeran <- read.csv(file="./data/songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
@@ -92,18 +92,25 @@ head(df_ed_sheeran)
 ```
 
 ```{r}
-docs <- c(levels(df_ed_sheeran$Lyrics))
-docs[1]
+docs_ed <- c(levels(df_ed_sheeran$Lyrics))
+docs_ed[1]
 ```
 
 
 ```{r}
-list_clean_speech <- list()
-for (idx in 1:length(docs)){
-   clean_speech <- Clean_Text_Block(docs[idx])
-   list_clean_speech[idx] <- list(clean_speech)
+
+get_clean_speech <- function(docs){
+   list_clean_speech <- list()
+   for (idx in 1:length(docs)){
+      clean_speech <- Clean_Text_Block(docs[idx])
+      list_clean_speech[idx] <- list(clean_speech)
+   }
+   return(list_clean_speech)
 }
-list_clean_speech[[3]]
+
+list_clean_speech_ed <-get_clean_speech(docs_ed)
+
+list_clean_speech_ed[[3]]
 ```
 
 
@@ -111,22 +118,27 @@ list_clean_speech[[3]]
 # analyzeSentiment(list_clean_speech[[82]]$text)$SentimentQDAP # check which songs don't work with the package.
 
 # remove songs that don't work with the SentimentAnalysis package.
-list_input <- list_clean_speech[-c(15, 17, 24, 30, 38, 46, 49, 82)]
+list_input_ed <- list_clean_speech_ed[-c(15, 17, 24, 30, 38, 46, 49, 82)]
 
 # Analyze sentiment for each sentence of the song.
-list_sentiment <- list()
-for (idx in 1:length(list_input)){
-   sentiment <- analyzeSentiment(list_input[[idx]]$text)
-   list_sentiment[idx] <- na.omit(list(sentiment))
-   print(idx)
+get_sentiment_scores <- function(list_input){
+   list_sentiment <- list()
+   for (idx in 1:length(list_input)){
+      sentiment <- analyzeSentiment(list_input[[idx]]$text)
+      list_sentiment[idx] <- na.omit(list(sentiment))
+      print(idx)
+   }  
+   return(list_sentiment)
 }
+
+
+list_sentiment_ed <- get_sentiment_scores(list_input_ed)
 # list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
-list_sentiment[[3]]$SentimentQDAP
+list_sentiment_ed[[3]]$SentimentQDAP
 ```
 
-
 ```{r}
-capture.output(list_sentiment, file = "./output/list_sentiment.txt")
+capture.output(list_sentiment_ed, file = "./output/list_sentiment_ed.txt")
 ```
 
 
@@ -159,55 +171,180 @@ make_discrete <- function(x) {
 
 # vectorizes the funciton
 v_make_discrete <- Vectorize(make_discrete)
-# coverts sentiments to discrete type
-# discrete_sentiments <- v_make_discrete(sentiments)
 
-list_dis_sentiments <- list()
-for(i in 1:length(list_sentiment)){
-   list_dis_sentiments[[i]] <- v_make_discrete(na.omit(list_sentiment[[i]]$SentimentQDAP))
+# coverts sentiments to discrete type
+get_discrete_scores <- function(list_sentiment){
+   list_dis_sentiments <- list()
+   for(i in 1:length(list_sentiment)){
+      list_dis_sentiments[[i]] <- v_make_discrete(na.omit(list_sentiment[[i]]$SentimentQDAP))
+   }
+   return(list_dis_sentiments)
 }
 
-list_dis_sentiments[[3]]
+list_dis_sentiments_ed <- get_discrete_scores(list_sentiment_ed)
+
+
+list_dis_sentiments_ed[[3]]
 ```
 
 ```{r}
-capture.output(list_dis_sentiments, file = "./output/list_discrete_sentiments.txt")
+capture.output(list_dis_sentiments_ed, file = "./output/list_discrete_sentiments_ed.txt")
 ```
 
 ```{r}
 # uses markovchain package in R to calculate the matrix probabilites
-list_markov_fits <- list()
-
-for(i in 1:length(list_dis_sentiments)){
-   list_markov_fits[[i]] <- markovchainFit(data = list_dis_sentiments[[i]], byrow = TRUE)
+get_markov_fits <- function(list_dis_sentiments){
+   list_markov_fits <- list()
+   for(i in 1:length(list_dis_sentiments)){
+      list_markov_fits[[i]] <- markovchainFit(data = list_dis_sentiments[[i]], byrow = TRUE)
+   }
+   return(list_markov_fits)
 }
 
-list_markov_fits[[69]] # corresponds to the song "Shape of You".
+list_markov_fits_ed <- get_markov_fits(list_dis_sentiments_ed)
+
+list_markov_fits_ed[[69]] # corresponds to the song "Shape of You".
 ```
 
 ```{r}
-capture.output(list_markov_fits, file = "./output/list_markov_fits.txt")
+capture.output(list_markov_fits_ed, file = "./output/list_markov_fits_ed.txt")
 ```
 
 ```{r}
 # derive the estimated probabilites fromt the fitted model.
-mcSentiment <- list_markov_fits[[1]]$estimate 
+mcSentiment_ed <- list_markov_fits_ed[[1]]$estimate 
 
 # gives names to the transition states.
-names(mcSentiment) <- c("negative", "neutral", "positive")
+names(mcSentiment_ed) <- c("negative", "neutral", "positive")
 
 # gives a name to the mocel.
-name(mcSentiment) <- "Sentiment"
+name(mcSentiment_ed) <- "Sentiment"
 ```
 
 ```{r}
 # derives the probablited of negative word after a positive word.
-transitionProbability(mcSentiment, "positive", "negative")
+transitionProbability(mcSentiment_ed, "positive", "negative")
 ```
 
 ```{r}
 # png(filename="graph.png")
-plt <- plot(mcSentiment)
+plt <- plot(mcSentiment_ed)
 plt 
 ```
 
+
+## Beyonce
+
+```{r}
+df_beyonce <- read.csv(file="./data/songs_lyrics_list_Beyonce.csv", header=TRUE, sep=",")
+head(df_beyonce)
+```
+
+```{r}
+docs_bey <- c(levels(df_beyonce$Lyrics))
+docs_bey[1]
+```
+
+```{r}
+list_clean_speech_bey <-get_clean_speech(docs_bey)
+
+list_clean_speech_bey[[3]]
+```
+
+```{r}
+# Analyze sentiment for each sentence of the song.
+
+# remove songs that don't work with the SentimentAnalysis package.
+list_input_bey <- list_clean_speech_bey[-c(7, 10, 11, 15, 33, 34, 37, 73, 74, 83, 99, 103, 106,
+                                           107, 108, 117, 118, 119, 139, 143, 144, 149, 155)]
+list_sentiment_bey <- get_sentiment_scores(list_input_bey)
+# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
+list_sentiment_bey[[3]]$SentimentQDAP
+```
+
+
+
+```{r}
+list_dis_sentiments_bey <- get_discrete_scores(list_sentiment_bey)
+
+list_dis_sentiments_bey[[3]]
+```
+
+```{r}
+capture.output(list_dis_sentiments_bey, file = "./output/list_discrete_sentiments_bey.txt")
+```
+
+```{r}
+list_markov_fits_bey <- get_markov_fits(list_dis_sentiments_bey)
+
+list_markov_fits_bey[[69]] # corresponds to the song "Shape of You".
+```
+
+```{r}
+capture.output(list_markov_fits_bey, file = "./output/list_markov_fits_bey.txt")
+```
+
+```{r}
+# derive the estimated probabilites fromt the fitted model.
+mcSentiment_bey <- list_markov_fits_bey[[1]]$estimate 
+
+# gives names to the transition states.
+names(mcSentiment_bey) <- c("negative", "neutral", "positive")
+
+# gives a name to the mocel.
+name(mcSentiment_bey) <- "Sentiment"
+```
+
+```{r}
+# derives the probablited of negative word after a positive word.
+transitionProbability(mcSentiment_bey, "positive", "negative")
+```
+
+```{r}
+# png(filename="graph.png")
+plt <- plot(mcSentiment_bey)
+plt 
+```
+
+
+## Coldplay
+
+```{r}
+df_cold <- read.csv(file="./data/songs_lyrics_list_Coldplay.csv", header=TRUE, sep=",")
+head(df_cold)
+```
+
+```{r}
+docs_cold <- c(levels(df_cold$Lyrics))
+docs_cold[1]
+```
+
+```{r}
+list_clean_speech_cold <-get_clean_speech(docs_cold)
+
+list_clean_speech_cold[[3]]
+```
+
+
+```{r}
+# analyzeSentiment(list_clean_speech_bey[[153]]$text)$SentimentQDAP   ## UNCOMMONET AND USE THIS TO TEST IF A SONG AT A PARTICULAR 
+                                                                      ## INDEX THROWS AN ERROR...PUT THAT INDEX INSEAD OF 153!!!
+# Analyze sentiment for each sentence of the song.
+get_sentiment_scores <- function(list_input){
+   list_sentiment <- list()
+   for (idx in 1:length(list_input)){                       ## REMEBER TO CHANGE THE STARTING POINT OF THE LOOP EVERY TIME YOU EXCLUDE A VALUE!!!
+      sentiment <- analyzeSentiment(list_input[[idx]]$text)
+      list_sentiment[idx] <- na.omit(list(sentiment))
+      print(idx)
+   }
+   return(list_sentiment)
+}
+
+# remove songs that don't work with the SentimentAnalysis package.
+list_input_cold <- list_clean_speech_cold
+list_sentiment_cold <- get_sentiment_scores(list_input_cold)         ## LOOK AT THE INDEX AT WHICH THE LOOP TERMINATED AND THREW AN ERROR, THEN DO SOME MATH TO THINK ABOUT WHICH 
+                                                                        # INDEX TO EXCLUDE....TEST IT USING THE FIRST LINE OF COMMENTED CODE....UNCOMMENT IT AND TEST FOR YOUR 
+                                                                        # INDEX.
+# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
+list_sentiment_cold[[3]]$SentimentQDAP
+```

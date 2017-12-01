@@ -33,6 +33,11 @@ sentences <- sentences[sentences != ""] # removes empty strings.
 head(sentences)
 ```
 
+```{r}
+con <- file("./data/shape_of_you.txt", "r", blocking = FALSE)
+text <- readLines(con)
+close(con) 
+```
 
 ```{r warning=FALSE, message=FALSE}
 # Analyze sentiment for each sentence of the song.
