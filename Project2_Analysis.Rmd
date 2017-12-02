@@ -1,0 +1,183 @@
+---
+title: "Analysis"
+author: "Eunji Lee"
+date: "12/1/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ed Sheeran
+
+
+```{r}
+mean_mat_ed <- Reduce('+', list_markov_fits_ed) / length(list_markov_fits_ed)
+mean_mat_ed
+capture.output(mean_mat_ed, file = "./output/mean_mat_ed.txt")
+```
+
+
+```{r}
+list_dist_mat_ed <- c()
+for (mat in 1:length(list_markov_fits_ed)){
+      list_dist_mat_ed[mat] = norm(list_markov_fits_ed[[mat]]-mean_mat_ed, "2")
+}  
+list_dist_mat_ed
+capture.output(list_dist_mat_ed, file = "./output/list_dist_mat_ed.txt")
+```
+
+
+## Beyonce
+```{r}
+mean_mat_bey <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+
+for (mat in 1:length(list_markov_fits_bey)){
+   mat_dim = dim(list_markov_fits_bey[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         mean_mat_bey = mean_mat_bey + list_markov_fits_bey[[mat]]
+         }
+}  
+mean_mat_bey <- mean_mat_bey / length(list_markov_fits_bey)
+mean_mat_bey
+capture.output(mean_mat_bey, file = "./output/mean_mat_bey.txt")
+```
+
+
+```{r}
+list_dist_mat_bey <- c()
+for (mat in 1:length(list_markov_fits_bey)){
+   mat_dim = dim(list_markov_fits_bey[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         list_dist_mat_bey[mat] = norm(list_markov_fits_bey[[mat]]-mean_mat_bey, "2")
+         }
+}  
+list_dist_mat_bey = list_dist_mat_bey[-which(sapply(list_dist_mat_bey, is.na))]
+list_dist_mat_bey
+capture.output(list_dist_mat_bey, file = "./output/list_dist_mat_bey.txt")
+```
+
+
+## Coldplay
+
+```{r}
+mean_mat_cold <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+
+for (mat in 1:length(list_markov_fits_cold)){
+   mat_dim = dim(list_markov_fits_cold[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         mean_mat_cold = mean_mat_cold + list_markov_fits_cold[[mat]]
+         }
+}  
+mean_mat_cold <- mean_mat_cold/length(list_markov_fits_cold)
+mean_mat_cold
+capture.output(mean_mat_cold, file = "./output/mean_mat_cold.txt")
+```
+
+```{r}
+list_dist_mat_cold <- c()
+for (mat in 1:length(list_markov_fits_cold)){
+   mat_dim = dim(list_markov_fits_cold[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         list_dist_mat_cold[mat] = norm(list_markov_fits_cold[[mat]]-mean_mat_cold, "2")
+         }
+}  
+list_dist_mat_cold = list_dist_mat_cold[-which(sapply(list_dist_mat_cold, is.na))]
+list_dist_mat_cold
+capture.output(list_dist_mat_cold, file = "./output/list_dist_mat_cold.txt")
+```
+
+
+## Maroon 5
+
+
+```{r}
+mean_mat_mar <- Reduce('+', list_markov_fits_mar) / length(list_markov_fits_mar)
+mean_mat_mar
+capture.output(mean_mat_mar, file = "./output/mean_mat_mar.txt")
+```
+
+
+```{r}
+list_dist_mat_mar <- c()
+for (mat in 1:length(list_markov_fits_mar)){
+      list_dist_mat_mar[mat] = norm(list_markov_fits_mar[[mat]]-mean_mat_mar, "2")
+}  
+list_dist_mat_mar
+capture.output(list_dist_mat_mar, file = "./output/list_dist_mat_mar.txt")
+```
+
+
+## Bruno Mars
+
+
+```{r}
+mean_mat_bru <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+
+for (mat in 1:length(list_markov_fits_bru)){
+      mat_dim = dim(list_markov_fits_bru[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         mean_mat_bru = mean_mat_bru + list_markov_fits_bru[[mat]]
+         }
+}  
+mean_mat_bru <- mean_mat_bru/length(list_markov_fits_bru)
+mean_mat_bru
+capture.output(mean_mat_bru, file = "./output/mean_mat_bru.txt")
+```
+
+```{r}
+list_dist_mat_bru <- c()
+for (mat in 1:length(list_markov_fits_bru)){
+      mat_dim = dim(list_markov_fits_bru[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         list_dist_mat_bru[mat] = norm(list_markov_fits_bru[[mat]]-mean_mat_bru, "2")
+         }
+}  
+list_dist_mat_bru = list_dist_mat_bru[-which(sapply(list_dist_mat_bru, is.na))]
+list_dist_mat_bru
+capture.output(list_dist_mat_bru, file = "./output/list_dist_mat_bru.txt")
+```
+
+### Appendix code:
+
+```{r}
+# mean_mat_ed <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+# 
+# for (mat in 1:length(list_markov_fits_ed)){ 
+#       mean_mat_ed = mean_mat_ed + list_markov_fits_ed[[mat]]
+# }
+# 
+# mean_mat_ed <- mean_mat_ed/length(list_markov_fits_ed)
+# mean_mat_ed
+# capture.output(mean_mat_ed, file = "./output/mean_mat_ed.txt")
+```
+
+```{r}
+# list(list_markov_fits_ed[[1]], list_markov_fits_ed[[2]])
+```
+
+```{r}
+# list_markov_fits_bey_clean = list_markov_fits_bey[-which(sapply(list_markov_fits_bey, dim != c(3, 3)))]
+# mean_mat_bey <- Reduce('+', list_markov_fits_bey) / length(list_markov_fits_bey)
+# mean_mat_bey
+```
+
+```{r}
+# mean_mat_mar <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+# 
+# for (mat in 1:length(list_markov_fits_mar)){
+#       mean_mat_mar = mean_mat_mar + list_markov_fits_mar[[mat]]
+# }  
+# mean_mat_mar <- mean_mat_mar/length(list_markov_fits_mar)
+# mean_mat_mar
+# capture.output(mean_mat_cold, file = "./output/mean_mat_mar.txt")
+```
