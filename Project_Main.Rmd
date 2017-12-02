@@ -22,6 +22,7 @@ library(stringr)
 library(markovchain)
 library(SentimentAnalysis)
 library(GGally)
+start_time <- Sys.time()
 ```
 
 
@@ -267,9 +268,9 @@ list_clean_speech_bey[[3]]
 list_input_bey <- list_clean_speech_bey[-c(7, 10, 11, 15, 33, 34, 37, 73, 74, 83, 99, 103, 106,
                                            107, 108, 117, 118, 119, 139, 143, 144, 149, 155)]
 list_sentiment_bey <- get_sentiment_scores(list_input_bey)
--which(sapply(list_sentiment, is.null))
-list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
-list_sentiment_bey[[3]]$SentimentQDAP
+# -which(sapply(list_sentiment_bey, is.null))
+# list_sentiment_bey = list_sentiment_bey[-which(sapply(list_sentiment_bey, is.null))]
+list_sentiment_bey
 ```
 
 
@@ -464,4 +465,8 @@ list_markov_fits_bru[[1]]
 
 ```{r}
 capture.output(list_markov_fits_bru, file = "./output/list_markov_fits_bru.txt")
+
+end_time <- Sys.time()
+
+end_time - start_time
 ```
