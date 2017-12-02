@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r warning=FALSE, message=FALSE}
+rm(list=ls())
 library(stringr)
 library(markovchain)
 library(SentimentAnalysis)
@@ -56,7 +57,7 @@ Clean_Text_Block <- function(text){
             cat("There was no text in this document! \n")
             to_return <- list(num_tokens = 0, unique_tokens = 0, text = "")
         }else{
-            # If there is , and only only one line of text then tokenize it
+            # If there is , and only one line of text then tokenize it
             clean_text <- Clean_String(text)
             num_tok <- length(clean_text)
             num_uniq <- length(unique(clean_text))
@@ -84,19 +85,6 @@ Clean_Text_Block <- function(text){
 }
 ```
 
-## Ed Sheeran
-
-```{r}
-df_ed_sheeran <- read.csv(file="./data/songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
-head(df_ed_sheeran)
-```
-
-```{r}
-docs_ed <- c(levels(df_ed_sheeran$Lyrics))
-docs_ed[1]
-```
-
-
 ```{r}
 get_clean_speech <- function(docs){
    list_clean_speech <- list()
@@ -106,19 +94,10 @@ get_clean_speech <- function(docs){
    }
    return(list_clean_speech)
 }
-
-list_clean_speech_ed <-get_clean_speech(docs_ed)
-
-list_clean_speech_ed[[3]]
 ```
 
 
 ```{r}
-# analyzeSentiment(list_clean_speech[[82]]$text)$SentimentQDAP # check which songs don't work with the package.
-# 
-# remove songs that don't work with the SentimentAnalysis package.
-list_input_ed <- list_clean_speech_ed[-c(15, 17, 24, 30, 38, 46, 49, 82)]
-
 # Analyze sentiment for each sentence of the song.
 get_sentiment_scores <- function(list_input){
    list_sentiment <- list()
@@ -130,15 +109,6 @@ get_sentiment_scores <- function(list_input){
    }  
    return(list_sentiment)
 }
-
-
-list_sentiment_ed <- get_sentiment_scores(list_input_ed)
-# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
-list_sentiment_ed[[15]]$SentimentQDAP
-```
-
-```{r}
-capture.output(list_sentiment_ed, file = "./output/list_sentiment_ed.txt")
 ```
 
 
@@ -180,16 +150,9 @@ get_discrete_scores <- function(list_sentiment){
    }
    return(list_dis_sentiments)
 }
-
-list_dis_sentiments_ed <- get_discrete_scores(list_sentiment_ed)
-
-
-list_dis_sentiments_ed[[3]]
 ```
 
-```{r}
-capture.output(list_dis_sentiments_ed, file = "./output/list_discrete_sentiments_ed.txt")
-```
+
 
 ```{r}
 # uses markovchain package in R to calculate the matrix probabilites
@@ -201,7 +164,74 @@ get_markov_fits <- function(list_dis_sentiments){
    }
    return(list_markov_fits)
 }
+```
 
+
+```{r}
+# uses markovchain package in R to calculate the matrix probabilites
+get_sentiment_scores <- function(list_input){
+   list_sentiment <- list()
+   for (idx in 1:length(list_input)){
+      sentiment <- tryCatch(analyzeSentiment(list_input[[idx]]$text), 
+                            error=function(e) NULL)
+      list_sentiment[idx] <- na.omit(list(sentiment))
+      print(idx)
+   }  
+   return(list_sentiment)
+}
+```
+
+
+## Ed Sheeran
+
+```{r}
+df_ed_sheeran <- read.csv(file="./data/songs_lyrics_list_Ed_Sheeran.csv", header=TRUE, sep=",")
+head(df_ed_sheeran)
+```
+
+```{r}
+docs_ed <- c(levels(df_ed_sheeran$Lyrics))
+docs_ed[1]
+```
+
+
+```{r}
+
+list_clean_speech_ed <-get_clean_speech(docs_ed)
+
+list_clean_speech_ed[[3]]
+```
+
+
+```{r}
+# analyzeSentiment(list_clean_speech[[82]]$text)$SentimentQDAP # check which songs don't work with the package.
+# 
+# remove songs that don't work with the SentimentAnalysis package.
+list_input_ed <- list_clean_speech_ed[-c(15, 17, 24, 30, 38, 46, 49, 82)]
+
+
+list_sentiment_ed <- get_sentiment_scores(list_input_ed)
+# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
+list_sentiment_ed[[15]]$SentimentQDAP
+```
+
+```{r}
+capture.output(list_sentiment_ed, file = "./output/list_sentiment_ed.txt")
+```
+
+
+```{r}
+list_dis_sentiments_ed <- get_discrete_scores(list_sentiment_ed)
+
+
+list_dis_sentiments_ed[[3]]
+```
+
+```{r}
+capture.output(list_dis_sentiments_ed, file = "./output/list_discrete_sentiments_ed.txt")
+```
+
+```{r}
 list_markov_fits_ed <- get_markov_fits(list_dis_sentiments_ed)
 
 list_markov_fits_ed[[69]] # corresponds to the song "Shape of You".
@@ -236,7 +266,8 @@ list_clean_speech_bey[[3]]
 list_input_bey <- list_clean_speech_bey[-c(7, 10, 11, 15, 33, 34, 37, 73, 74, 83, 99, 103, 106,
                                            107, 108, 117, 118, 119, 139, 143, 144, 149, 155)]
 list_sentiment_bey <- get_sentiment_scores(list_input_bey)
-# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
+-which(sapply(list_sentiment, is.null))
+list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
 list_sentiment_bey[[3]]$SentimentQDAP
 ```
 
@@ -282,28 +313,18 @@ docs_cold[1]
 ```{r}
 list_clean_speech_cold <-get_clean_speech(docs_cold)
 
-list_clean_speech_cold[[3]]
+list_clean_speech_cold[[1]]
 ```
 
 
 ```{r}
-# uses markovchain package in R to calculate the matrix probabilites
-get_markov_fits <- function(list_dis_sentiments){
-   list_markov_fits <- list()
-   for(i in 1:length(list_dis_sentiments)){
-      mcFit <- markovchainFit(data = list_dis_sentiments[[i]], byrow = TRUE)
-      list_markov_fits[[i]] <- mcFit$estimate@transitionMatrix
-   }
-   return(list_markov_fits)
-}
 # remove songs that don't work with the SentimentAnalysis package.
-list_input_cold <- list_clean_speech_cold[-c(24, 28, 32, 33, 39, 49, 57, 58, 61, 64, 68, 87, 88, 105, 
-                                             113, 114, 115, 116, 125, 126, 128, 140, 141, 142, 145, 146)]
+list_input_cold <- list_clean_speech_cold #[-c(24, 28, 32, 33, 39, 49, 57, 58, 61, 64, 68, 87, 88, 105, 
+                                             # 113, 114, 115, 116, 125, 126, 128, 140, 141, 142, 145, 146)]
 list_sentiment_cold <- get_sentiment_scores(list_input_cold)         
-# which(sapply(list_sentiment_cold, is.null))
+which(sapply(list_sentiment_cold, is.null))
 list_sentiment_cold = list_sentiment_cold[-which(sapply(list_sentiment_cold, is.null))]
-list_sentiment_cold
-length(list_input_cold)
+list_sentiment_cold[[1]]$SentimentQDAP
 ```
 
 
@@ -354,12 +375,12 @@ list_clean_speech_mar[[3]]
 
 ```{r}
 # remove songs that don't work with the SentimentAnalysis package.
-list_input_mar <- list_clean_speech_mar[-c(2, 6, 12, 17, 30, 40, 44, 48, 49, 52, 
-                                           56, 58, 59, 79, 87, 94, 103, 111, 116)]
+list_input_mar <- list_clean_speech_mar# [-c(2, 6, 12, 17, 30, 40, 44, 48, 49, 52, 
+                                           # 56, 58, 59, 79, 87, 94, 103, 111, 116)]
 list_sentiment_mar <- get_sentiment_scores(list_input_mar)         
-# which(sapply(list_sentiment_mar, is.null)) # uncomment to figure out which songs don't work with the package ie. throw an error
+which(sapply(list_sentiment_mar, is.null)) # uncomment to figure out which songs don't work with the package ie. throw an error
 list_sentiment_mar = list_sentiment_mar[-which(sapply(list_sentiment_mar, is.null))]
-list_sentiment_mar[[3]]$Sentime
+list_sentiment_mar[[1]]
 length(list_sentiment_mar)
 ```
 
@@ -411,9 +432,9 @@ list_clean_speech_bru[[3]]
 
 ```{r}
 # remove songs that don't work with the SentimentAnalysis package.
-list_input_bru <- list_clean_speech_bru[-c(4, 5, 6, 8, 9, 13, 34)]
+list_input_bru <- list_clean_speech_bru # [-c(4, 5, 6, 8, 9, 13, 34)]
 list_sentiment_bru <- get_sentiment_scores(list_input_bru)         
-# which(sapply(list_sentiment_bru, is.null))
+which(sapply(list_sentiment_bru, is.null))
 list_sentiment_bru = list_sentiment_bru[-which(sapply(list_sentiment_bru, is.null))]
 list_sentiment_bru[[3]]$SentimentQDAP
 length(list_sentiment_bru)
@@ -435,7 +456,7 @@ capture.output(list_dis_sentiments_bru, file = "./output/list_discrete_sentiment
 ```{r}
 list_markov_fits_bru <- get_markov_fits(list_dis_sentiments_bru)
 
-list_markov_fits_bru[[1]] 
+list_markov_fits_bru[[1]]
 ```
 
 ```{r}
