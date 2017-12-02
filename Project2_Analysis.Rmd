@@ -147,6 +147,15 @@ list_dist_mat_bru
 capture.output(list_dist_mat_bru, file = "./output/list_dist_mat_bru.txt")
 ```
 
+```{r}
+length(list_dist_mat_ed) / dim(df_ed_sheeran)[1]
+length(list_dist_mat_bey) / dim(df_beyonce)[1]
+length(list_dist_mat_cold) / dim(df_cold)[1]
+length(list_dist_mat_mar) / dim(df_mar)[1]
+length(list_dist_mat_bru) / dim(df_bru)[1]
+```
+
+
 ### Appendix code:
 
 ```{r}
