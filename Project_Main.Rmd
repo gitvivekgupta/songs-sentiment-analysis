@@ -191,12 +191,12 @@ head(df_ed_sheeran)
 
 ```{r}
 docs_ed <- c(levels(df_ed_sheeran$Lyrics))
+docs_ed <- iconv(docs_ed,"WINDOWS-1252","UTF-8")
 docs_ed[1]
 ```
 
 
 ```{r}
-
 list_clean_speech_ed <-get_clean_speech(docs_ed)
 
 list_clean_speech_ed[[3]]
@@ -251,6 +251,7 @@ head(df_beyonce)
 
 ```{r}
 docs_bey <- c(levels(df_beyonce$Lyrics))
+docs_bey <- iconv(docs_bey,"WINDOWS-1252","UTF-8")
 docs_bey[1]
 ```
 
@@ -306,6 +307,7 @@ head(df_cold)
 
 ```{r}
 docs_cold <- c(levels(df_cold$Lyrics))
+docs_cold <- iconv(docs_cold,"WINDOWS-1252","UTF-8")
 docs_cold[1]
 ```
 
@@ -362,6 +364,7 @@ head(df_mar)
 
 ```{r}
 docs_mar <- c(levels(df_mar$Lyrics))
+docs_mar <- iconv(docs_mar,"WINDOWS-1252","UTF-8")
 docs_mar[1]
 ```
 
@@ -380,8 +383,7 @@ list_input_mar <- list_clean_speech_mar# [-c(2, 6, 12, 17, 30, 40, 44, 48, 49, 5
 list_sentiment_mar <- get_sentiment_scores(list_input_mar)         
 which(sapply(list_sentiment_mar, is.null)) # uncomment to figure out which songs don't work with the package ie. throw an error
 list_sentiment_mar = list_sentiment_mar[-which(sapply(list_sentiment_mar, is.null))]
-list_sentiment_mar[[1]]
-length(list_sentiment_mar)
+list_sentiment_mar[[1]]$SentimentQDAP
 ```
 
 
@@ -419,6 +421,7 @@ head(df_bru)
 
 ```{r}
 docs_bru <- c(levels(df_bru$Lyrics))
+docs_bru <- iconv(docs_bru,"WINDOWS-1252","UTF-8")
 docs_bru[1]
 ```
 
