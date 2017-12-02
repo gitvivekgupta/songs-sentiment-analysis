@@ -13,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Ed Sheeran
 
-
 ```{r}
 mean_mat_ed <- Reduce('+', list_markov_fits_ed) / length(list_markov_fits_ed)
 mean_mat_ed
@@ -32,8 +31,10 @@ capture.output(list_dist_mat_ed, file = "./output/list_dist_mat_ed.txt")
 
 
 ## Beyonce
+
 ```{r}
-mean_mat_bey <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+mean_mat_bey <- matrix(0, nrow = 3, ncol = 3, 
+                       dimnames = list(c("-1","0","1"), c("-1","0","1")))
 
 for (mat in 1:length(list_markov_fits_bey)){
    mat_dim = dim(list_markov_fits_bey[[mat]])
@@ -66,7 +67,8 @@ capture.output(list_dist_mat_bey, file = "./output/list_dist_mat_bey.txt")
 ## Coldplay
 
 ```{r}
-mean_mat_cold <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+mean_mat_cold <- matrix(0, nrow = 3, ncol = 3, 
+                        dimnames = list(c("-1","0","1"), c("-1","0","1")))
 
 for (mat in 1:length(list_markov_fits_cold)){
    mat_dim = dim(list_markov_fits_cold[[mat]])
@@ -97,7 +99,6 @@ capture.output(list_dist_mat_cold, file = "./output/list_dist_mat_cold.txt")
 
 ## Maroon 5
 
-
 ```{r}
 mean_mat_mar <- Reduce('+', list_markov_fits_mar) / length(list_markov_fits_mar)
 mean_mat_mar
@@ -117,9 +118,9 @@ capture.output(list_dist_mat_mar, file = "./output/list_dist_mat_mar.txt")
 
 ## Bruno Mars
 
-
 ```{r}
-mean_mat_bru <- matrix(0, nrow = 3, ncol = 3, dimnames = list(c("-1","0","1"), c("-1","0","1")))
+mean_mat_bru <- matrix(0, nrow = 3, ncol = 3, 
+                       dimnames = list(c("-1","0","1"), c("-1","0","1")))
 
 for (mat in 1:length(list_markov_fits_bru)){
       mat_dim = dim(list_markov_fits_bru[[mat]])
