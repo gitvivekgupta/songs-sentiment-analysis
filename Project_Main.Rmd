@@ -270,7 +270,7 @@ list_input_bey <- list_clean_speech_bey[-c(7, 10, 11, 15, 33, 34, 37, 73, 74, 83
 list_sentiment_bey <- get_sentiment_scores(list_input_bey)
 # -which(sapply(list_sentiment_bey, is.null))
 # list_sentiment_bey = list_sentiment_bey[-which(sapply(list_sentiment_bey, is.null))]
-list_sentiment_bey
+list_sentiment_bey[[1]]$SentimentQDAP
 ```
 
 
@@ -379,7 +379,7 @@ list_clean_speech_mar[[3]]
 
 ```{r}
 # remove songs that don't work with the SentimentAnalysis package.
-list_input_mar <- list_clean_speech_mar# [-c(2, 6, 12, 17, 30, 40, 44, 48, 49, 52, 
+list_input_mar <- list_clean_speech_mar # [-c(2, 6, 12, 17, 30, 40, 44, 48, 49, 52, 
                                            # 56, 58, 59, 79, 87, 94, 103, 111, 116)]
 list_sentiment_mar <- get_sentiment_scores(list_input_mar)         
 which(sapply(list_sentiment_mar, is.null)) # uncomment to figure out which songs don't work with the package ie. throw an error
