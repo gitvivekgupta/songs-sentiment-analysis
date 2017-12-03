@@ -212,8 +212,28 @@ p.3
 ```
 
 ```{r}
-test.txt <- read.table("./output/list_dist_mat_ed.txt", header=T)
+test.txt <- read.table("./output/list_dist_mat_ed.txt", header=F)
 test.txt 
+```
+
+```{r warning=FALSE, message=FALSE}
+process_line <- function(line){
+   inp_dist_mat <- as.double(line)
+   inp_dist_mat = inp_dist_mat[-which(sapply(inp_dist_mat, is.na))]
+   return(inp_dist_mat)
+}
+
+vec_process_line <- Vectorize(process_line)
+
+read_norm_data <- function(file){
+   file <- scan(file, what="", sep="\n")
+   # Separate elements by one or more whitepace
+   file <- strsplit(x, "[[:space:]]+")
+   inp_dist_mat_ed <- vec_process_line(file)
+}
+
+inp_dist_mat_ed <- read_norm_data("./output/list_dist_mat_ed.txt")
+inp_dist_mat_ed
 ```
 
 
