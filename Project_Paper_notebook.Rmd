@@ -456,20 +456,19 @@ We also constructed the density plot for distances of each artist to observe if 
     
 In order to test if the distributions of distances for all artists are similar, we conducted an analysis of variance (ANOVA) test. As a side note, we are not comparing mean transition matrices among artists. we are going to compare mean distances for all artists. We will construct the typical hypothesis testing of the common alpha value of 0.05. Then, hypothesis testing is set as follows:
 
-Let $\mu_{1}$ be the mean distances for Ed Sheeran,
+$$
+\begin{aligned}
+\text{Let } &\mu_{1} \text{ be the mean distances for Ed Sheeran}, \\
+& \mu_{2} \text{ be the mean distances for Beyonce}, \\
+& \mu_{3} \text{ be the mean distances for Coldplay}, \\
+& \mu_{4} \text{ be the mean distances for Maroon 5}, \\
+& \mu_{5} \text{ be the mean distances for Bruno Mars}. \\
+\\
+\text{Then, } & H_{0}: \mu_{1}=\mu_{2}=\mu_{3}=\mu_{4}=\mu_{5} \\
+& H_{a}: \text{ At least two of the means are different. } \\
+\end{aligned}
+$$
 
-$\mu_{2}$ be the mean distances for Beyonce
-
-$\mu_{3}$ be the mean distances for Coldplay
-
-$\mu_{4}$ be the mean distances for Maroon 5
-
-$\mu_{5}$ be the mean distances for Bruno Mars
-
-
-H_{0}: $\mu_{1}=\mu_{2}=\mu_{3}=\mu_{4}=\mu_{5}$
-
-H_{a}: At least two of the means are different.
 
 We constructed the test in R code. 
 From the analysis, we found out that the p-value is 0.0236, where p-value indicates the probability of observing the outcome given the null hypothesis is true. In this case, the probability of mistakenly rejecting our claim that at least two of the mean distances are different is 0.0236. Since we set 95% hypothesis testing (with an alpha value of 0.05), it means we are willing to reject the null hypothesis (H_{0}), when the p-value is less than 0.05. Hence, we can reject the null hypothesis and conclude that at least two of the mean distances of artists are different.
