@@ -1,15 +1,20 @@
 ---
-title: "Analysis"
-author: "Eunji Lee"
-date: "12/1/2017"
+title: "Math 381 Project 2: Sentiment Analysis of Songs"
+author: "Eunji Lee | Yuan Qu | Arnav Dubey"
+date: "November 25, 2017"
 output:
+  html_document:
+    df_print: paged
+  html_notebook:
+    theme: readable
+    df_print: paged
   pdf_document: default
-  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 ## Ed Sheeran
 
@@ -156,6 +161,46 @@ length(list_dist_mat_mar) / dim(df_mar)[1]
 length(list_dist_mat_bru) / dim(df_bru)[1]
 ```
 
+```{r}
+# devtools::install_github('hadley/ggplot2') # uncomment and run code to install the dev version of ggplot2.
+library(plotly)
+
+ed_sheeran_norms <- data.frame(normDist = unlist(list_dist_mat_ed))
+beyonce_norms <- data.frame(normDist = unlist(list_dist_mat_bey))
+coldplay_norms <- data.frame(normDist = unlist(list_dist_mat_cold))
+maroon5_norms <- data.frame(normDist = unlist(list_dist_mat_mar))
+bruno_norms <- data.frame(normDist = unlist(list_dist_mat_bru))
+
+# combine your dataframes into one.  First make a new column in each.
+ed_sheeran_norms$Artist <- 'Ed Sheeran'
+beyonce_norms$Artist <- 'Beyonce'
+coldplay_norms$Artist <- 'Coldplay'
+maroon5_norms$Artist <- 'Maroon 5'
+bruno_norms$Artist <- 'Bruno Mars'
+
+# combine into your new data frame artist_norms.
+artist_norms <- rbind(ed_sheeran_norms, beyonce_norms, 
+                      coldplay_norms, maroon5_norms, bruno_norms)
+
+# create our awesome plot.
+p.1 <- ggplot(artist_norms, aes(normDist, fill = Artist)) + geom_density(alpha = 0.2)
+
+p.1 <- ggplotly(p.1)
+
+p.1
+# htmlwidgets::saveWidget(as.widget(p), "01-density_plot_overlap.html")
+```
+
+```{r}
+p.2 <- ggplot(artist_norms, aes(x = normDist)) + 
+  geom_density(aes(fill = Artist)) + 
+  facet_grid(~Artist) + 
+  ggtitle("Normal Distance density plots by Artists")
+
+p.2 <- ggplotly(p.2)
+p.2
+# htmlwidgets::saveWidget(as.widget(p.2), "02-density_plot_non-overlap.html")
+```
 
 ### Appendix code:
 
