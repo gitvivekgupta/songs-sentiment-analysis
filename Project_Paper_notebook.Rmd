@@ -24,7 +24,7 @@ However, finding a model that fits Markov property was not easy because there we
 
 Some interesting researches were done to analyze sentiments of song lyrics. Oudenne and Chasins used Natural Language Processing (NLP) to analyze and identify the emotional polarity of song lyrics. According to the paper, an increasing number of researchers have started to focus on lyrics to classify music, whereas they used to only focus on the audio features to analyze music. Sentiment analysis is popular in NLP, and sentiment analysis on lyrics is often used in machine learning field to classify sentiments of the lyrics. It was also found that lyrics play more significant roles in sentiment or mood analysis than audio features itself. Yet, most other problems creating a model for music with Markov chains were usually about audio features of music (Markov chains with rhythms, tempos as states). In our project, we are going to explore the transitions of sentiments in a song lyrics and observe if similar patterns of sentiment transitions are observed for each artist. Since sentiment analysis is already widely developed and used in the field and its usage is out of the scope of this project, we are going to implement the existing codes to get the sentiment scores of the lyrics.
 
-## Model
+# Model
 We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website and transformed them into CSV files. The above image showed what the file looks like. It contained information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites that we had used to obtain information were under 'Full_URL' list. The file shown above was only for Beyonce's songs. In total, we obtained five CSV files since we would analyze five artists (ED Sheeran, Beyonce, Bruno Mars, Coldplay, and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyonce, there are more than 200 songs. Thus, our data contains about 570 songs.
 
 ## Data
@@ -54,7 +54,7 @@ Another noticeable fact is that after processing the original data, some songs a
 
 Based on the assumptions we make and our method to obtain and process the data, our model will capture sentiment transition from sentence to sentence to analyze the sentiment properties of the lyrics for different artists. On the other hand, we left out the audio part of the song since we only analyze the lyrics. As mentioned earlier, when taking the music into account. the sentiment of a song might vary. Moreover, we do not consider the sentiment transition from verse to verse or the transition from three sentences to the following three sentences (or four and five). Processing the data differently might change the result, too. 
 
-## Code
+# Code
 
 ## Code to scrape the lyrics of songs from https://www.lyrics.com
 
