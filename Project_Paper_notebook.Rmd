@@ -1,0 +1,506 @@
+---
+title: 'Math 381 Project 2: Sentiment Analysis of Songs'
+author: "Eunji Lee | Yuan Qu | Arnav Dubey"
+date: "November 25, 2017"
+output:
+  pdf_document: default
+  html_notebook:
+    df_print: paged
+    theme: readable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+# Introduction 
+
+For the project, we modeled using Markov chains and the existing 'sentiment analysis' r package to capture the sentiment characteristics of each artist' lyrics in their songs. We were interested in exploring how the transition of sentiments in an artist's song might differ from those of another artist. We also wanted to investigate the similarities and distinctions in the sentiments of the lyrics from different pop stars. 
+
+# Background
+Applications of Markov chains are found in many areas of sports, biology, chemistry, games to linguistics. The concept of Markov chains fascinated our group, especially its role in linguistics. Markov chains are used in linguistics to usually analyze a sequence of letters or words to capture author's writing style and to generate random texts with the most probable letter or word sequences.  
+
+However, finding a model that fits Markov property was not easy because there were several limitations to apply Markov chains. First, the model should change its state from a discrete set of states, in a discrete set of times (each second, each day, etc.). Also, the probability of a current state only depends on the previous state and is not affected by any other prior states. We considered generating random texts by analyzing poems of a writer or lyrics of an artist but concluded that we would probably get meaningless sentences because Markov chain uses random, memoryless process when changing its states. Creating valid (at least grammatically correct) sentences would require us to study linguistics and include a large number of grammar rules. Most importantly, it would also be hard to quantify a success of the project with created texts. Hence, instead of using lyrics to create random texts, we thought it would be interesting to do a sentiment analysis on the lyrics for some artists. 
+
+Some interesting researches were done to analyze sentiments of song lyrics. Oudenne and Chasins used Natural Language Processing (NLP) to analyze and identify the emotional polarity of song lyrics. According to the paper, an increasing number of researchers have started to focus on lyrics to classify music, whereas they used to only focus on the audio features to analyze music. Sentiment analysis is popular in NLP, and sentiment analysis on lyrics is often used in machine learning field to classify sentiments of the lyrics. It was also found that lyrics play more significant roles in sentiment or mood analysis than audio features itself. Yet, most other problems creating a model for music with Markov chains were usually about audio features of music (Markov chains with rhythms, tempos as states). In our project, we are going to explore the transitions of sentiments in a song lyrics and observe if similar patterns of sentiment transitions are observed for each artist. Since sentiment analysis is already widely developed and used in the field and its usage is out of the scope of this project, we are going to implement the existing codes to get the sentiment scores of the lyrics.
+
+# Model
+We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website and transformed them into CSV files. The above image showed what the file looks like. It contained information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites that we had used to obtain information were under 'Full_URL' list. The file shown above was only for Beyonce's songs. In total, we obtained five CSV files since we would analyze five artists (ED Sheeran, Beyonce, Bruno Mars, Coldplay, and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyonce, there are more than 200 songs. Thus, our data contains about 570 songs.
+
+## Data
+We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website () and transformed them into csv files. The above image shows what the file looks like. It contains information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites we obtaining information from are under 'Full_URL' list.The file shown above is only for Beyonce's songs. In total, we obtained five csv files since we will analyze five artists (ED Sheeran, Beyonce, Bruno Mars, Coldplay and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyonce, there are more than 200 songs. Thus, our data contains about 570 songs.
+
+## Assumptions
+In order to create the model, we made following assumptions. First, the sentiment score for lyrics transition from sentence to sentence follows the nature of Markov chain. This means we assumed that the transition process changes discretely among a set of states (negative, neutral and positive).  And the next state (sentence) only depends on the current state (sentence) and is unaffected by the state (sentences) of the system at earlier times. We would present how we obtained the sentiment data and converted data to the states that we would use later in the paper. 
+
+The second assumption was that the sentiment scores obtained from the 'sentiment analysis' r package are a good representation (estimate) of the sentiments of the lyrics. This was the basis of our analysis. 
+
+Our third assumption was that the lyrics does reflect the sentiments of the songs. This assumption was important because we could analyze the sentiment of songs by analyzing lyrics. In addition, this assumption was also based on the researches mentioned before that sentiment of lyrics has a significant role in identifying sentiments of a song as a whole. 
+
+## Getting and processing the data
+We got the sentiment data for the songs by using the 'sentiment analysis' r package. It is a very popular open source package for text sentiment analysis. The package entails three different dictionaries: Harvard-IV dictionary, Loughran-McDonald Financial dictionary, and QDAP dictionary. Each dictionary categorizes the sentiment of words slightly differently by various linguistics. More importantly, each dictionary uses different algorithms to return various form of results. Harvard-IV dictionary only returns positive and negative scores. Loughran-McDonald Financial dictionary returns positive, negative scores and uncertain words. QDAP dictionary returns positive, negative and 0 scores. Since we wanted positive, negative and neutral scores as our states in transition matrix, QDAP dictionary gave us the most desired result.
+
+Additionally, the 'sentiment analysis' package can take in a word as an input and returns a score for a single word. It can also take in the sentence as an input, and returns a sentiment score for the whole sentence. We chose to analyze sentence by sentence for a reason that we wanted a relatively large set of data points. If we chose to analyze word by word, it would have had very high variabilities. Therefore, we don't think such transition can capture the sentiment transition feature of a whole song more accurately than sentence by sentence. On the other hand, we could have inputted the whole lyrics of a song and got a single sentiment score. In this case, however, we would not be able to know any sentiment transition within the lyrics, which meant not enough variations and data points. This would result in difficulty and inaccurate to approximate the sentiment transition feature of an artist. Considering the appropriate level of variation, the proper amount of data points, and the accuracy of approximation, we choose to analyze sentence by sentence. 
+
+Moreover, one of the essential steps of constructing our model is to transform the sentiment scores to the states in the transition matrix. The data from the 'sentiment analysis' r package are continuous values within the range of -1 to 1. To classify the data into negative, positive and neutral states, we rescale the data by raising them to ??? power to magnify all the decimal values. For instance, the value of 0.125 will become 0.5 after the rescaling. Then we classify the values between -0.125 and 0.125 to be neutral (0 state), other negative values to be negative (-1 state) and other positive values to be positive (+1 state). We implement such method because the sentiment score for sentence tends to be neutral (A lot of words like 'a' and 'the' are neutral, and the algorithm from the package will average the score for each word to get the score for a sentence), but we want to increase the threshold of the data values being classified as neutral for better representing and emphasizing the unique features of an artist' lyrics. More specifically, we want the probability of being classified as neutral to be significantly less than the probability of being positive and negative. We calculated that for the interval [-0.125,0.125] as neutral, the probability of being neutral is 13% and the probability of being positive equals the probability of being negative, which is 43.5% (P(neutral) = 13% < P(negative) = P(positive) = 43.5%). This interval of classifying neutrality is also one of our assumptions which can be changed for adjustments and extensions of the model.
+
+To construct the transition matrix, we now have the three states and sentiment scores being classified into the three states. Then we start to calculate the probabilities of each transition and put the data into the matrix. Indeed, We use the 'markovchain' r package to get the transition matrix. Specifically, for each song, we enter its lyrics as a vector into the function 'get_markov_fits', and each sentence as an element in the vector. Then it counts the number of times of each possible transition, for example, -1 to -1 and -1 to 1. And it divides the number by the total number of transitions to obtain the probability of certain transition. This is how we construct the transition matrix for each song. 
+
+Furthermore, we will compare the lyrics sentiment features from artist to artist by comparing a set of matrices to another set of matrices. We calculate the mean of the set of matrix and obtain the mean matrix. We also calculate the distance from one matrix to its mean matrix using the 2-norm function and get vectors of such distance for the set. The mean can represent the average transition of an artist' lyrics, but it loses plenty of important properties for each individual matrix. Thus, we also calculate the distance between each matrix to the mean, which helps us observe the variation of the lyrics sentiment. Both the mean matrix and the norm vector help us capture certain properties of an artist's lyrics as a whole and compare the similarities and differences between artists. 
+
+When processing the data, we notice that the number of songs for each artist is not the same. For example, Beyonce has more than 200 songs while Bruno Mars only has 40 songs. But from a statistical perspective, 40 is not a small sample number. Since all other samples are more than 40, and we are trying to capture the sentiment characteristics of an artist lyrics as a whole, we conclude that unequal sample size for each artist does not affect much of the result. 
+
+Another noticeable fact is that after processing the original data, some songs are getting lost because they contained non-UTF-8 characters like '*' and '^'. Based on the time constraints, it is not feasible to figure out why certain data points weren't compatible with the package we were using and how to fix it. Besides, the number of songs being lost is about 5 for each artist, which is not too much and we still have a good amount of data to analyze. Thus, we choose to discard certain songs directly.
+
+Based on the assumptions we make and our method to obtain and process the data, our model will capture sentiment transition from sentence to sentence to analyze the sentiment properties of the lyrics for different artists. On the other hand, we left out the audio part of the song since we only analyze the lyrics. As mentioned earlier, when taking the music into account. the sentiment of a song might vary. Moreover, we do not consider the sentiment transition from verse to verse or the transition from three sentences to the following three sentences (or four and five). Processing the data differently might change the result, too. 
+
+# Code
+
+## Code to scrape the lyrics of songs from https://www.lyrics.com
+
+```{python eval=FALSE}
+import requests as rq
+import pandas as pd
+from bs4 import BeautifulSoup as bsp, SoupStrainer as ss
+import re
+import codecs as cd
+from collections import Counter as ctr
+
+full_address = "https://www.lyrics.com/artist/Bruno%20Mars/1107691"
+artist_name = "Bruno Mars"
+
+page = rq.get(full_address)
+soup = bsp(page.content, 'html.parser')
+
+def get_container(soup):
+    container = soup.find('div', { "id" : "content-main"})
+    return container
+    
+container = get_container(soup)
+
+def get_album_names(container):
+    album_tags = container.findAll('h3', attrs = {'class': 'artist-album-label'})
+    album_names = []
+    for tag in album_tags:
+        album_names.append(tag.text)
+    return album_names
+
+album_names = get_album_names(container)
+
+def get_songs_data(container):
+    album_blocks = container.findAll('div', attrs = {'class': 'clearfix'})
+    songs_data = []
+    # artist_name = "Maroon 5"
+    for block in album_blocks:
+        album_tags = block.findAll('h3', attrs = {'class': 'artist-album-label'})
+        album_name = ''
+        for tag in album_tags:
+            album_name = tag.text
+        songs_tags = block.findAll('td', attrs = {'class': 'tal qx'})
+        songs_data = generate_songs_data(songs_data, songs_tags, 
+                                         album_name, artist_name)
+    return songs_data
+    
+def generate_songs_data(songs_data, songs_tags, album_name, artist_name):
+    i = 0
+    song_name = ''
+    song_duration = ''
+    while(i < len(songs_tags) - 1):
+            song_name = songs_tags[i].text
+            song_duration = songs_tags[i+1].text
+            song_url = songs_tags[i].find('a').get('href')
+            i += 2
+            songs_data.append((album_name, artist_name, song_name, 
+                               song_duration, song_url))
+    return songs_data
+    
+songs_df = pd.DataFrame(get_songs_data(container), 
+                        columns = ['Album_Name', 
+                                   'Artist_Name', 
+                                   'Song_Title', 
+                                   'Duration', 
+                                   'URI'])
+                                   
+def generate_full_url(songs_df):
+    base_url = 'http://www.lyrics.com'
+    songs_df['Full_URL'] = base_url + songs_df['URI']
+    return songs_df
+    
+songs_df = generate_full_url(songs_df)
+songs_df.to_csv('./data/songs_url_list_' + artist_name + '.csv')
+
+def get_lyrics(url_list):
+    list_lyrics = []
+    for url in url_list:
+        page = rq.get(url)
+        soup = bsp(page.content, 'html.parser')
+        container = soup.find('div', { "class" : "lyric clearfix"})
+        lyric_tags = container.findAll('pre', attrs = {'id': 'lyric-body-text'})
+        for tag in lyric_tags:
+            lyric = tag.text
+            list_lyrics.append(lyric)
+    return list_lyrics
+    
+url_list = songs_df['Full_URL'].tolist()
+list_lyrics = get_lyrics(url_list)
+
+songs_df['Lyrics'] = list_lyrics
+
+songs_df.to_csv('./data/songs_lyrics_list_' + artist_name + '.csv')
+```
+
+
+## Code used to process lyrics and get transition matrices for all the songs
+
+```{r warning=FALSE, message=FALSE}
+rm(list=ls())
+library(stringr)
+library(markovchain)
+library(SentimentAnalysis)
+library(GGally)
+start_time <- Sys.time()
+```
+
+```{r}
+Clean_String <- function(string){
+    # Lowercase
+    temp <- tolower(string)
+    #' Remove everything that is not a number or letter (may want to keep more 
+    #' stuff in your actual analyses). 
+    temp <- stringr::str_split(temp, "\n")[[1]]
+    temp <- stringr::str_replace_all(temp,"[^a-zA-Z\\s]", " ")
+    # Shrink down to just one white space
+    temp <- stringr::str_replace_all(temp,"[\\s]+", " ")
+    temp <- trimws(temp)
+    # Split it
+    # 
+    # Get rid of trailing "" if necessary
+    indexes <- which(temp == "")
+    if(length(indexes) > 0){
+      temp <- temp[-indexes]
+    } 
+    return(temp)
+}
+```
+
+```{r}
+#' function to clean text
+Clean_Text_Block <- function(text){
+    if(length(text) <= 1){
+        # Check to see if there is any text at all with another conditional
+        if(length(text) == 0){
+            cat("There was no text in this document! \n")
+            to_return <- list(num_tokens = 0, unique_tokens = 0, text = "")
+        }else{
+            # If there is , and only one line of text then tokenize it
+            clean_text <- Clean_String(text)
+            num_tok <- length(clean_text)
+            num_uniq <- length(unique(clean_text))
+            to_return <- list(num_tokens = num_tok, unique_tokens = num_uniq, 
+                              text = clean_text)
+        }
+    }else{
+        # Get rid of blank lines
+        indexes <- which(text == "")
+        if(length(indexes) > 0){
+            text <- text[-indexes]
+        }  
+        # Loop through the lines in the text and use the append() function to 
+        clean_text <- Clean_String(text[1])
+        for(i in 2:length(text)){
+            # add them to a vector 
+            clean_text <- append(clean_text,Clean_String(text[i]))
+        }
+        # Calculate the number of tokens and unique tokens and return them in a 
+        # named list object.
+        num_tok <- length(clean_text)
+        num_uniq <- length(unique(clean_text))
+        to_return <- list(num_tokens = num_tok, unique_tokens = num_uniq, 
+                          text = clean_text)
+    }
+    return(to_return)
+}
+```
+
+```{r}
+get_clean_speech <- function(docs){
+   list_clean_speech <- list()
+   for (idx in 1:length(docs)){
+      clean_speech <- Clean_Text_Block(docs[idx])
+      list_clean_speech[idx] <- list(clean_speech)
+   }
+   return(list_clean_speech)
+}
+```
+
+```{r}
+# Analyze sentiment for each sentence of the song.
+get_sentiment_scores <- function(list_input){
+   list_sentiment <- list()
+   for (idx in 1:length(list_input)){
+      sentiment <- tryCatch(analyzeSentiment(list_input[[idx]]$text), 
+                            error=function(e) NULL)
+      list_sentiment[idx] <- na.omit(list(sentiment))
+      # print(idx)
+   }  
+   return(list_sentiment)
+}
+```
+
+```{r}
+# converts continuous variable (sentiment scores) to discrete variable.
+make_discrete <- function(x) {
+   
+   if(x < 0) {
+      sign <- -1 
+   } else if(x > 0) {
+      sign <- 1 
+   } else {
+      sign <- 0
+   }
+   
+   y = abs(x)^{1/3} # scaling using power
+
+    # because 0.125^{1/3} = 0.5, we want to capture more non-neutral sentiment.   
+   if(y > 0.5){    
+      significance = 1
+   } else{
+      significance = 0
+   }
+   
+   if(significance == 0){
+      x <- 0
+   } else {
+      x <- sign
+   }
+}
+
+# vectorizes the funciton
+v_make_discrete <- Vectorize(make_discrete)
+
+# coverts sentiments to discrete type
+get_discrete_scores <- function(list_sentiment){
+   list_dis_sentiments <- list()
+   for(i in 1:length(list_sentiment)){
+      list_dis_sentiments[[i]] <- v_make_discrete(
+         na.omit(list_sentiment[[i]]$SentimentQDAP))
+   }
+   return(list_dis_sentiments)
+}
+```
+
+```{r}
+# uses markovchain package in R to calculate the matrix probabilites
+get_markov_fits <- function(list_dis_sentiments){
+   list_markov_fits <- list()
+   for(i in 1:length(list_dis_sentiments)){
+      mcFit <- markovchainFit(data = list_dis_sentiments[[i]], byrow = TRUE)
+      list_markov_fits[[i]] <- mcFit$estimate@transitionMatrix
+   }
+   return(list_markov_fits)
+}
+```
+
+## Code to process data and obtain results for Ed Sheeran Songs
+
+```{r results='hide'}
+df_ed_sheeran <- read.csv(file="./data/songs_lyrics_list_Ed_Sheeran.csv", 
+                          header=TRUE, sep=",")
+head(df_ed_sheeran)
+```
+
+```{r}
+docs_ed <- c(levels(df_ed_sheeran$Lyrics))
+docs_ed <- iconv(docs_ed,"WINDOWS-1252","UTF-8")
+```
+
+```{r}
+list_clean_speech_ed <-get_clean_speech(docs_ed)
+
+list_clean_speech_ed[[3]]
+```
+
+```{r}
+# check which songs don't work with the package.
+# analyzeSentiment(list_clean_speech[[82]]$text)$SentimentQDAP 
+# 
+# remove songs that don't work with the SentimentAnalysis package.
+list_input_ed <- list_clean_speech_ed[-c(15, 17, 24, 30, 38, 46, 49, 82)]
+
+
+list_sentiment_ed <- get_sentiment_scores(list_input_ed)
+# list_sentiment = list_sentiment[-which(sapply(list_sentiment, is.null))]
+```
+
+```{r}
+list_sentiment_ed[[15]]$SentimentQDAP
+```
+
+```{r}
+capture.output(list_sentiment_ed, file = "./output/list_sentiment_ed.txt")
+```
+
+```{r}
+list_dis_sentiments_ed <- get_discrete_scores(list_sentiment_ed)
+
+
+list_dis_sentiments_ed[[3]]
+```
+
+```{r}
+capture.output(list_dis_sentiments_ed, file = "./output/list_discrete_sentiments_ed.txt")
+```
+
+```{r}
+list_markov_fits_ed <- get_markov_fits(list_dis_sentiments_ed)
+
+list_markov_fits_ed[[69]] # corresponds to the song "Shape of You".
+```
+
+A similar process was followed to process the data and obtain the transition matrices of the sentiment states for all songs for the other 4 Artists (Beyonce, Coldplay, Maroon 5, Bruno Mars) too.
+
+## Code used to analyze and process the matrices
+
+For Ed Sheeran:
+
+```{r}
+mean_mat_ed <- Reduce('+', list_markov_fits_ed) / length(list_markov_fits_ed)
+mean_mat_ed
+capture.output(mean_mat_ed, file = "./output/mean_mat_ed.txt")
+```
+
+```{r}
+list_dist_mat_ed <- c()
+for (mat in 1:length(list_markov_fits_ed)){
+      list_dist_mat_ed[mat] = norm(list_markov_fits_ed[[mat]]-mean_mat_ed, "2")
+}  
+list_dist_mat_ed
+capture.output(list_dist_mat_ed, file = "./output/list_dist_mat_ed.txt")
+```
+
+A similar process was followed to process the data and obtain the mean matrix of all transition matrices for the rest of the artists. Then the norm distances from the mean was clculated for each of the matrices.
+
+## Code used to visually analyze the norm distance of matrices from the mean matrix of each artist.
+
+```{r eval=FALSE}
+# uncomment and run code to install the dev version of ggplot2.
+# devtools::install_github('hadley/ggplot2') 
+library(plotly)
+
+ed_sheeran_norms <- data.frame(normDist = unlist(list_dist_mat_ed))
+Beyonce_norms <- data.frame(normDist = unlist(list_dist_mat_bey))
+coldplay_norms <- data.frame(normDist = unlist(list_dist_mat_cold))
+maroon5_norms <- data.frame(normDist = unlist(list_dist_mat_mar))
+bruno_norms <- data.frame(normDist = unlist(list_dist_mat_bru))
+
+# combine your dataframes into one.  First make a new column in each.
+ed_sheeran_norms$Artist <- 'Ed Sheeran'
+Beyonce_norms$Artist <- 'Beyonce'
+coldplay_norms$Artist <- 'Coldplay'
+maroon5_norms$Artist <- 'Maroon 5'
+bruno_norms$Artist <- 'Bruno Mars'
+
+# combine into your new data frame artist_norms.
+artist_norms <- rbind(ed_sheeran_norms, Beyonce_norms, 
+                      coldplay_norms, maroon5_norms, bruno_norms)
+
+# create our awesome plot.
+p.1 <- ggplot(artist_norms, aes(normDist, fill = Artist)) 
++ geom_density(alpha = 0.2)
+
+p.1 <- ggplotly(p.1)
+
+p.1
+# htmlwidgets::saveWidget(as_widget(p), "01-density_plot_overlap.html")
+```
+
+```{r eval=FALSE}
+p.2 <- ggplot(artist_norms, aes(x = normDist)) + 
+  geom_density(aes(fill = Artist)) + 
+  facet_grid(~Artist) + 
+  ggtitle("Normal Distance density plots by Artists")
+
+p.2 <- ggplotly(p.2)
+p.2
+# htmlwidgets::saveWidget(as_widget(p.2), "02-density_plot_non-overlap.html")
+```
+
+```{r eval=FALSE}
+p.3 <- plot_ly(artist_norms, 
+               x = ~normDist, 
+               color = ~Artist, 
+               type = "box")
+p.3
+# htmlwidgets::saveWidget(as_widget(p.3), "03-artists_box_plots.html")
+```
+
+
+# Results
+
+Comparing the distribution of norm distances visually for the 5 artists.
+
+![](./graphs/02-density_plot_non-overlap.png)
+
+![](./graphs/01-density_plot_overlap.png)
+![](./graphs/03-artists_box_plots.png)
+
+From the set of transition matrices from each artist, we calculated the mean matrices by calculating the mean of each element of matrices from same state transitions. For example, we calculated the mean of all transition probabilities from -1 to -1 and placed the mean into the same position in a new mean matrix. Then, in order to analyze how far every transition matrix is from its mean transition matrix (i.e. the spread) of its artist, we calculated the "distances" between each matrix and the mean matrix. The distances are calculated such that we find the norm 2 of difference between each transition matrices and the calculated mean matrix. The same process was repeated to calculate mean matrices and the list of distances for each artist. The following is the mean transition matrices and the list of distances for each artist 
+
+First, we will compare mean transition matrices for all artists. Probabilities of transitions from state to state (i.e. sentiment score to sentiment score) show similar patterns for all artists overall. The transition of any sentiment scores (negative, positive, and neutral) to neutral score is most probable, followed by the transition to positive score, then transition to negative score. We found the same pattern observed for all artists interesting. In addition, generally, the transition from neutral state to neutral state is most probable for most artists, except Coldplay and Ed Sheeran. In their cases, the transition from negative to neutral was most common. Although our interval for a neutral score when we convert continuous sentiment scores to discrete sentiment scores was pretty narrow (i.e. (-0.125, 0.125), the probability of transitioning from neutral state or transitioning to neutral state was still high. Even though the mean matrix is a good mathematical tool to observe the overall set of transition matrices for each artist, we could not observe how each transition matrices are related to its mean matrix.
+
+Thus, we drew a box plot of the collection of distances for each artist in order to analyze how each transition matrices are distributed from the mean for each artist. 
+
+From the box plot, we observed that the distribution of distances between transition matrices of song lyrics and its mean transition matrix for all artists looked similar. The distributions of all artists have similar overall ranges as well as interquartile ranges. 
+    
+We also constructed the density plot for distances of each artist to observe if similar distributions are found. Here is the density plot of 5 artists.
+    
+In order to test if the distributions of distances for all artists are similar, we conducted an analysis of variance (ANOVA) test. As a side note, we are not comparing mean transition matrices among artists. we are going to compare mean distances for all artists. We will construct the typical hypothesis testing of the common alpha value of 0.05. Then, hypothesis testing is set as follows:
+
+$$
+\begin{aligned}
+\text{Let } &\mu_{1} \text{ be the mean distances for Ed Sheeran}, \\
+& \mu_{2} \text{ be the mean distances for Beyonce}, \\
+& \mu_{3} \text{ be the mean distances for Coldplay}, \\
+& \mu_{4} \text{ be the mean distances for Maroon 5}, \\
+& \mu_{5} \text{ be the mean distances for Bruno Mars}. \\
+\\
+\text{Then, } & H_{0}: \mu_{1}=\mu_{2}=\mu_{3}=\mu_{4}=\mu_{5} \\
+& H_{a}: \text{ At least two of the means are different. } \\
+\end{aligned}
+$$
+
+
+We constructed the test in R code. 
+From the analysis, we found out that the p-value is 0.0236, where p-value indicates the probability of observing the outcome given the null hypothesis is true. In this case, the probability of mistakenly rejecting our claim that at least two of the mean distances are different is 0.0236. Since we set 95% hypothesis testing (with an alpha value of 0.05), it means we are willing to reject the null hypothesis (H_{0}), when the p-value is less than 0.05. Hence, we can reject the null hypothesis and conclude that at least two of the mean distances of artists are different.
+
+If we had constructed the hypothesis with an alpha value of 0.01, another typical value of alpha, we would have failed to reject the null hypothesis (since p-value of 0.0236 > 0.01). Thus, we could have concluded that we failed to conclude that at least two of the mean distances are different. 
+
+We are not very confident that if transition matrices for all five artists (Ed Sheeran, Beyonce, Coldplay, Maroon 5 and Bruno Mars) are similarly distributed from its mean transition matrix because we were only able to compare mean distances between transition matrices and mean matrix for each artist. Also because the answer varies depending on the alpha value. We are 95% that at least two of the mean distances are different, but we are not 99% confident of this statement that at least two of the mean distances are different. Furthermore, it's hard to figure out which of the mean distances are different when we simply conduct a hypothesis test with an alpha of 0.05. However, we are pretty confident that there are lots of similarities in their distribution based on hypothesis testings and distribution graphs of distances. 
+
+# Adjustments and extensions
+There are several methods to explore transition matrices of sentiment scores for all song lyrics for five artists. When we calculate distances between transition matrices to mean matrix, we used 2- norm to calculate them. But instead, we could use different algorithm of getting distances, by using infinity norm instead. Infinity norm of matrix will give maximum row sum norm, and it is expected to give similar results as 2-norm for distances. 
+
+As a part of extension, instead of comparing sentiments transitions among artists, we wanted to figure out if there are specific patterns of transitions in sentiments for different genres of songs. Although it seemed hard to make comparisons among artists from the box plot, we wondered if a difference in length of range of box plot of distances between transition matrices and their mean matrix of an artist for different artists have any relationships with genres of songs. We could observe from the box plot that the overall range and interquartile range of distances for Coldplay are the widest among five artists of our choice, and the ranges of distances for Bruno Mars were the shortest. Bruno Mars songs are known for displaying a wide variety of musical styles from R&B, reggae, rap, hip-hop, soul, rock, dance to balladry. 
+
+Coldplay music, on the other hand, is known for being unique in British pop and alternative rock genre but their music genre is still mainly classified as alternative rock. In order to test this finding, we tried to make transitions matrices from different genres of songs, like the way we did for different artists. However, it was hard to extract and import the song lyrics data for different genres because most of the lyrics websites distinguished songs by artists, and rarely by genres of songs. Since we need large amount of songs data like we did before, it was hard to settle this argument that if range of distances between transition matrices and its mean transition matrix has any relationships with genres of songs. 
+
+
+# Conclusion
+The most time-consuming part of our model was to process the data. We needed to make specific choice about using the dictionary, and think of reasonable methods to convert continuous sentiment scores to discrete states and find feasible approach to compare a set of matrix to another. These insights, thinking process and the final approaches were essential for developing the complete model.
+
+To conclude, the sentiment transition within a song might not help us detect the unique style of an artist's lyrics because by comparing the sentiments for one artist to another, their transition distributions were not significantly different. But at the same time, by comparison, we could observe their similarities and some worth-noticing distinctions about certain transition states for an artist. Through further exploring their background, we can hypothesize and conduct further exploration about the factors affecting such differences.
+
+
+# References
+
+https://cran.r-project.org/web/packages/markovchain/vignettes/an_introduction_to_markovchain_package.pdf
+
+https://cran.r-project.org/web/packages/SentimentAnalysis/SentimentAnalysis.pdf 
+
+https://cran.r-project.org/web/packages/quanteda/vignettes/quickstart.html
+
+[1]  Oudenne, Ashley M. and Sarah Chasins. "Identifying the Emotional Polarity of Song Lyrics through Natural Language Processing." (2010).
+
+[2] Hu, Xiao and J. Stephen Downie. "When Lyrics Outperform Audio for Music Mood Classification: A Feature Analysis." ISMIR(2010).
+
+[3] "Welcome to Lyrics.com." Lyrics.com, www.lyrics.com.
