@@ -188,7 +188,7 @@ p.1 <- ggplot(artist_norms, aes(normDist, fill = Artist)) + geom_density(alpha =
 p.1 <- ggplotly(p.1)
 
 p.1
-# htmlwidgets::saveWidget(as.widget(p), "01-density_plot_overlap.html")
+# htmlwidgets::saveWidget(as_widget(p), "01-density_plot_overlap.html")
 ```
 
 ```{r}
@@ -199,8 +199,28 @@ p.2 <- ggplot(artist_norms, aes(x = normDist)) +
 
 p.2 <- ggplotly(p.2)
 p.2
-# htmlwidgets::saveWidget(as.widget(p.2), "02-density_plot_non-overlap.html")
+# htmlwidgets::saveWidget(as_widget(p.2), "02-density_plot_non-overlap.html")
 ```
+
+```{r}
+p.3 <- plot_ly(artist_norms, 
+               x = ~normDist, 
+               color = ~Artist, 
+               type = "box")
+p.3
+# htmlwidgets::saveWidget(as_widget(p.3), "03-artists_box_plots.html")
+```
+
+```{r}
+test.txt <- read.table("./output/list_dist_mat_ed.txt", header=T)
+test.txt 
+```
+
+
+```{r}
+ggnet2(network(rgraph(10, tprob = 0.25), directed = TRUE), arrow.size = 12)
+```
+
 
 ### Appendix code:
 
