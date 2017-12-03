@@ -25,10 +25,10 @@ However, finding a model that fits Markov property was not easy because there we
 Some interesting researches were done to analyze sentiments of song lyrics. Oudenne and Chasins used Natural Language Processing (NLP) to analyze and identify the emotional polarity of song lyrics. According to the paper, an increasing number of researchers have started to focus on lyrics to classify music, whereas they used to only focus on the audio features to analyze music. Sentiment analysis is popular in NLP, and sentiment analysis on lyrics is often used in machine learning field to classify sentiments of the lyrics. It was also found that lyrics play more significant roles in sentiment or mood analysis than audio features itself. Yet, most other problems creating a model for music with Markov chains were usually about audio features of music (Markov chains with rhythms, tempos as states). In our project, we are going to explore the transitions of sentiments in a song lyrics and observe if similar patterns of sentiment transitions are observed for each artist. Since sentiment analysis is already widely developed and used in the field and its usage is out of the scope of this project, we are going to implement the existing codes to get the sentiment scores of the lyrics.
 
 ## Model
-We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website and transformed them into CSV files. The above image showed what the file looks like. It contained information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites that we had used to obtain information were under 'Full_URL' list. The file shown above was only for Beyoncé's songs. In total, we obtained five CSV files since we would analyze five artists (ED Sheeran, Beyoncé, Bruno Mars, Coldplay, and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyoncé, there are more than 200 songs. Thus, our data contains about 570 songs.
+We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website and transformed them into CSV files. The above image showed what the file looks like. It contained information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites that we had used to obtain information were under 'Full_URL' list. The file shown above was only for Beyonce's songs. In total, we obtained five CSV files since we would analyze five artists (ED Sheeran, Beyonce, Bruno Mars, Coldplay, and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyonce, there are more than 200 songs. Thus, our data contains about 570 songs.
 
 ## Data
-We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website () and transformed them into csv files. The above image shows what the file looks like. It contains information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites we obtaining information from are under 'Full_URL' list.The file shown above is only for Beyoncé's songs. In total, we obtained five csv files since we will analyze five artists (ED Sheeran, Beyoncé, Bruno Mars, Coldplay and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyoncé, there are more than 200 songs. Thus, our data contains about 570 songs.
+We used 'beautifulsoup' package in Python to scrape the information for all songs of each artist from the website () and transformed them into csv files. The above image shows what the file looks like. It contains information about album name, artist name, song title, duration, URI, full URL and the lyrics. The websites we obtaining information from are under 'Full_URL' list.The file shown above is only for Beyonce's songs. In total, we obtained five csv files since we will analyze five artists (ED Sheeran, Beyonce, Bruno Mars, Coldplay and Maroon5). Additionally, for each file, there are about 80 songs, except for Beyonce, there are more than 200 songs. Thus, our data contains about 570 songs.
 
 ## Assumptions
 In order to create the model, we made following assumptions. First, the sentiment score for lyrics transition from sentence to sentence follows the nature of Markov chain. This means we assumed that the transition process changes discretely among a set of states (negative, neutral and positive).  And the next state (sentence) only depends on the current state (sentence) and is unaffected by the state (sentences) of the system at earlier times. We would present how we obtained the sentiment data and converted data to the states that we would use later in the paper. 
@@ -48,7 +48,7 @@ To construct the transition matrix, we now have the three states and sentiment s
 
 Furthermore, we will compare the lyrics sentiment features from artist to artist by comparing a set of matrices to another set of matrices. We calculate the mean of the set of matrix and obtain the mean matrix. We also calculate the distance from one matrix to its mean matrix using the 2-norm function and get vectors of such distance for the set. The mean can represent the average transition of an artist' lyrics, but it loses plenty of important properties for each individual matrix. Thus, we also calculate the distance between each matrix to the mean, which helps us observe the variation of the lyrics sentiment. Both the mean matrix and the norm vector help us capture certain properties of an artist's lyrics as a whole and compare the similarities and differences between artists. 
 
-When processing the data, we notice that the number of songs for each artist is not the same. For example, Beyoncé has more than 200 songs while Bruno Mars only has 40 songs. But from a statistical perspective, 40 is not a small sample number. Since all other samples are more than 40, and we are trying to capture the sentiment characteristics of an artist lyrics as a whole, we conclude that unequal sample size for each artist does not affect much of the result. 
+When processing the data, we notice that the number of songs for each artist is not the same. For example, Beyonce has more than 200 songs while Bruno Mars only has 40 songs. But from a statistical perspective, 40 is not a small sample number. Since all other samples are more than 40, and we are trying to capture the sentiment characteristics of an artist lyrics as a whole, we conclude that unequal sample size for each artist does not affect much of the result. 
 
 Another noticeable fact is that after processing the original data, some songs are getting lost because they contained non-UTF-8 characters like '*' and '^'. Based on the time constraints, it is not feasible to figure out why certain data points weren't compatible with the package we were using and how to fix it. Besides, the number of songs being lost is about 5 for each artist, which is not too much and we still have a good amount of data to analyze. Thus, we choose to discard certain songs directly.
 
@@ -388,20 +388,20 @@ A similar process was followed to process the data and obtain the mean matrix of
 library(plotly)
 
 ed_sheeran_norms <- data.frame(normDist = unlist(list_dist_mat_ed))
-beyonce_norms <- data.frame(normDist = unlist(list_dist_mat_bey))
+Beyonce_norms <- data.frame(normDist = unlist(list_dist_mat_bey))
 coldplay_norms <- data.frame(normDist = unlist(list_dist_mat_cold))
 maroon5_norms <- data.frame(normDist = unlist(list_dist_mat_mar))
 bruno_norms <- data.frame(normDist = unlist(list_dist_mat_bru))
 
 # combine your dataframes into one.  First make a new column in each.
 ed_sheeran_norms$Artist <- 'Ed Sheeran'
-beyonce_norms$Artist <- 'Beyonce'
+Beyonce_norms$Artist <- 'Beyonce'
 coldplay_norms$Artist <- 'Coldplay'
 maroon5_norms$Artist <- 'Maroon 5'
 bruno_norms$Artist <- 'Bruno Mars'
 
 # combine into your new data frame artist_norms.
-artist_norms <- rbind(ed_sheeran_norms, beyonce_norms, 
+artist_norms <- rbind(ed_sheeran_norms, Beyonce_norms, 
                       coldplay_norms, maroon5_norms, bruno_norms)
 
 # create our awesome plot.
@@ -476,7 +476,7 @@ From the analysis, we found out that the p-value is 0.0236, where p-value indica
 
 If we had constructed the hypothesis with an alpha value of 0.01, another typical value of alpha, we would have failed to reject the null hypothesis (since p-value of 0.0236 > 0.01). Thus, we could have concluded that we failed to conclude that at least two of the mean distances are different. 
 
-We are not very confident that if transition matrices for all five artists (Ed Sheeran, Beyoncé, Coldplay, Maroon 5 and Bruno Mars) are similarly distributed from its mean transition matrix because we were only able to compare mean distances between transition matrices and mean matrix for each artist. Also because the answer varies depending on the alpha value. We are 95% that at least two of the mean distances are different, but we are not 99% confident of this statement that at least two of the mean distances are different. Furthermore, it's hard to figure out which of the mean distances are different when we simply conduct a hypothesis test with an alpha of 0.05. However, we are pretty confident that there are lots of similarities in their distribution based on hypothesis testings and distribution graphs of distances. 
+We are not very confident that if transition matrices for all five artists (Ed Sheeran, Beyonce, Coldplay, Maroon 5 and Bruno Mars) are similarly distributed from its mean transition matrix because we were only able to compare mean distances between transition matrices and mean matrix for each artist. Also because the answer varies depending on the alpha value. We are 95% that at least two of the mean distances are different, but we are not 99% confident of this statement that at least two of the mean distances are different. Furthermore, it's hard to figure out which of the mean distances are different when we simply conduct a hypothesis test with an alpha of 0.05. However, we are pretty confident that there are lots of similarities in their distribution based on hypothesis testings and distribution graphs of distances. 
 
 # Adjustments and extensions
 There are several methods to explore transition matrices of sentiment scores for all song lyrics for five artists. When we calculate distances between transition matrices to mean matrix, we used 2- norm to calculate them. But instead, we could use different algorithm of getting distances, by using infinity norm instead. Infinity norm of matrix will give maximum row sum norm, and it is expected to give similar results as 2-norm for distances. 
