@@ -1,0 +1,127 @@
+---
+title: "Project2_extension"
+author: "Eunji Lee"
+date: "12/3/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Ed Sheeran
+# Find mean of matrices and inf-norm
+mean_mat_ed <- Reduce('+', list_markov_fits_ed) / length(list_markov_fits_ed)
+list_dist_mat_ed <- c()
+for (mat in 1:length(list_markov_fits_ed)){
+      list_dist_mat_ed[mat] = norm(list_markov_fits_ed[[mat]]-mean_mat_ed, "I")
+}  
+list_dist_mat_ed
+capture.output(list_dist_mat_ed, file = "./output/list_dist_mat_ed_Inf.txt")
+
+```
+
+```{r}
+# Beyonce
+# Find mean of matrices and inf-norm
+mean_mat_bey <- matrix(0, nrow = 3, ncol = 3, 
+                       dimnames = list(c("-1","0","1"), c("-1","0","1")))
+
+for (mat in 1:length(list_markov_fits_bey)){
+   mat_dim = dim(list_markov_fits_bey[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         mean_mat_bey = mean_mat_bey + list_markov_fits_bey[[mat]]
+         }
+}  
+mean_mat_bey <- mean_mat_bey / length(list_markov_fits_bey)
+list_dist_mat_bey <- c()
+for (mat in 1:length(list_markov_fits_bey)){
+   mat_dim = dim(list_markov_fits_bey[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         list_dist_mat_bey[mat] = norm(list_markov_fits_bey[[mat]]-mean_mat_bey, "I")
+         }
+}  
+list_dist_mat_bey = list_dist_mat_bey[-which(sapply(list_dist_mat_bey, is.na))]
+list_dist_mat_bey
+capture.output(list_dist_mat_bey, file = "./output/list_dist_mat_bey_Inf.txt")
+```
+
+```{r}
+# Coldplay
+# Find mean of matrices and inf-norm
+mean_mat_cold <- matrix(0, nrow = 3, ncol = 3, 
+                        dimnames = list(c("-1","0","1"), c("-1","0","1")))
+
+for (mat in 1:length(list_markov_fits_cold)){
+   mat_dim = dim(list_markov_fits_cold[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         mean_mat_cold = mean_mat_cold + list_markov_fits_cold[[mat]]
+         }
+}  
+mean_mat_cold <- mean_mat_cold/length(list_markov_fits_cold)
+list_dist_mat_cold <- c()
+for (mat in 1:length(list_markov_fits_cold)){
+   mat_dim = dim(list_markov_fits_cold[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         list_dist_mat_cold[mat] = norm(list_markov_fits_cold[[mat]]-mean_mat_cold, "I")
+         }
+}  
+list_dist_mat_cold = list_dist_mat_cold[-which(sapply(list_dist_mat_cold, is.na))]
+list_dist_mat_cold
+capture.output(list_dist_mat_cold, file = "./output/list_dist_mat_cold_Inf.txt")
+```
+
+```{r}
+# Maroon 5
+# Find mean of matrices and inf-norm
+mean_mat_mar <- Reduce('+', list_markov_fits_mar) / length(list_markov_fits_mar)
+list_dist_mat_mar <- c()
+for (mat in 1:length(list_markov_fits_mar)){
+      list_dist_mat_mar[mat] = norm(list_markov_fits_mar[[mat]]-mean_mat_mar, "I")
+}  
+list_dist_mat_mar
+capture.output(list_dist_mat_mar, file = "./output/list_dist_mat_mar_Inf.txt")
+```
+
+```{r}
+# Bruno Mars
+# Find mean of matrices and inf-norm
+mean_mat_bru <- matrix(0, nrow = 3, ncol = 3, 
+                       dimnames = list(c("-1","0","1"), c("-1","0","1")))
+
+for (mat in 1:length(list_markov_fits_bru)){
+      mat_dim = dim(list_markov_fits_bru[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         mean_mat_bru = mean_mat_bru + list_markov_fits_bru[[mat]]
+         }
+}  
+mean_mat_bru <- mean_mat_bru/length(list_markov_fits_bru)
+list_dist_mat_bru <- c()
+for (mat in 1:length(list_markov_fits_bru)){
+      mat_dim = dim(list_markov_fits_bru[[mat]])
+      if(tryCatch(mat_dim[1]== 3 && 
+                  mat_dim[2] == 3, error=function(e) FALSE)){
+         list_dist_mat_bru[mat] = norm(list_markov_fits_bru[[mat]]-mean_mat_bru, "I")
+         }
+}  
+list_dist_mat_bru = list_dist_mat_bru[-which(sapply(list_dist_mat_bru, is.na))]
+list_dist_mat_bru
+capture.output(list_dist_mat_bru, file = "./output/list_dist_mat_bru_Inf.txt")
+```
+
+
+```{r}
+# Finding standard deviaion for the set of matrices
+sd_mat_ed <- apply(simplify2array(list_markov_fits_ed), 1:2, sd)
+sd_mat_bey <- apply(simplify2array(list_markov_fits_bey), 1:2, sd)
+sd_mat_cold <- apply(simplify2array(list_markov_fits_cold), 1:2, sd)
+sd_mat_mar <- apply(simplify2array(list_markov_fits_mar), 1:2, sd)
+sd_mat_bru <- apply(simplify2array(list_markov_fits_bru), 1:2, sd)
+```
+

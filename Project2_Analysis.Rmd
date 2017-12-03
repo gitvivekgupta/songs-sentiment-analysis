@@ -211,11 +211,6 @@ p.3
 # htmlwidgets::saveWidget(as_widget(p.3), "03-artists_box_plots.html")
 ```
 
-```{r}
-test.txt <- read.table("./output/list_dist_mat_ed.txt", header=F)
-test.txt 
-```
-
 ```{r warning=FALSE, message=FALSE}
 process_line <- function(line){
    inp_dist_mat <- as.double(line)
@@ -228,17 +223,16 @@ vec_process_line <- Vectorize(process_line)
 read_norm_data <- function(file){
    file <- scan(file, what="", sep="\n")
    # Separate elements by one or more whitepace
-   file <- strsplit(x, "[[:space:]]+")
-   inp_dist_mat_ed <- vec_process_line(file)
+   file <- strsplit(file, "[[:space:]]+")
+   list_read <- vec_process_line(file)
+   return(list_read)
 }
 
 inp_dist_mat_ed <- read_norm_data("./output/list_dist_mat_ed.txt")
-inp_dist_mat_ed
-```
-
-
-```{r}
-ggnet2(network(rgraph(10, tprob = 0.25), directed = TRUE), arrow.size = 12)
+inp_dist_mat_bey <- read_norm_data("./output/list_dist_mat_bey.txt")
+inp_dist_mat_cold <- read_norm_data("./output/list_dist_mat_cold.txt")
+inp_dist_mat_mar <- read_norm_data("./output/list_dist_mat_mar.txt")
+inp_dist_mat_bru <- read_norm_data("./output/list_dist_mat_bru.txt")
 ```
 
 
@@ -275,4 +269,47 @@ ggnet2(network(rgraph(10, tprob = 0.25), directed = TRUE), arrow.size = 12)
 # mean_mat_mar <- mean_mat_mar/length(list_markov_fits_mar)
 # mean_mat_mar
 # capture.output(mean_mat_cold, file = "./output/mean_mat_mar.txt")
+```
+
+```{r warning= FALSE, message=FALSE}
+# install.packages("GGally")
+## Download and install the package
+#ninstall.packages("igraph")
+
+## Load package
+# library(igraph)
+# library(GGally)
+# library(igraph)
+# net <- graph_from_adjacency_matrix(mean_mat_bru, mode = "directed", 
+#                                    weighted = TRUE, diag = TRUE)
+# 
+# sentimentStates <- c("negative", "neutral", "positive")
+# 
+# byRow <- TRUE
+# 
+# sentimentMatrix <- matrix(data = mean_mat_bru, 
+#                         nrow = 3,
+#                         dimnames = list(sentimentStates, 
+#                                         sentimentStates))
+# 
+# 
+# sentimentMatrix
+# 
+# mcSentiment <- new("adjacency", states = sentimentStates, byrow = byRow,
+#                    transitionMatrix = sentimentMatrix, name = "Sentiment")
+# 
+# g <- graph_from_adjacency_matrix(mean_mat_bru, mode = "directed", weighted =  , diag = TRUE)
+# plot(g)
+
+# # gives names to the transition states.
+# names(mcSentiment) <- c("negative", "neutral", "positive")
+# 
+# # gives a name to the mocel.
+# name(mcSentiment) <- "Sentiment"
+# # derives the probablited of negative word after a positive word.
+# transitionProbability(mcSentiment, "positive", "negative")
+# 
+# # png(filename="graph.png")
+# plt <- plot(mcSentiment)
+# plt 
 ```

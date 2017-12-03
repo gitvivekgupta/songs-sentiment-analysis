@@ -1,0 +1,26 @@
+---
+title: "Project2_furtherAnalysis"
+author: "Eunji Lee"
+date: "12/3/2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+artist <- c(as.vector(matrix(1,nrow=length(inp_dist_mat_ed))),
+            as.vector(matrix(2,nrow=length(inp_dist_mat_bey))),
+            as.vector(matrix(3,nrow=length(inp_dist_mat_cold))),
+            as.vector(matrix(4,nrow=length(inp_dist_mat_mar))),
+            as.vector(matrix(5,nrow=length(inp_dist_mat_bru))))
+var <- c(inp_dist_mat_ed, inp_dist_mat_bey, inp_dist_mat_cold, inp_dist_mat_mar, inp_dist_mat_bru)
+table = data.frame(as.table(setNames(var, artist)))
+aov.table = aov(var~ as.factor(artist), data=table)
+aov.table
+summary(aov.table) 
+```
